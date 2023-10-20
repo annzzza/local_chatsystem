@@ -6,6 +6,7 @@ For one lonely person:
 - freshly grounded black pepper
 - rigatoni (~110 g)
 - 2 lices of guanciale
+  
 Fry the guanciale cut into dices in a pan. Keep the fat in the pan and put the pan aside.
 Put the water to a boil. In the meantime mix the two egg yolks, the black pepper and the parmesan cheese in a bowl.
 Add the pasta into the salted water, stir. After a couple minute, take some pasta water out of the pot and mix it in the egg and cheese mixture.
