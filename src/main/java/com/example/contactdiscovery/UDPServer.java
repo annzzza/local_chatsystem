@@ -47,12 +47,12 @@ public class UDPServer extends Thread {
             String received = new String(packet.getData(), 0, packet.getLength());
 
 
+            /*
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             Message msg = gson.fromJson(received, Message.class);
 
             String msgToClient = "";
             //according to msg type, different behaviour
-            /*
             switch(msg.getType()) {
 
                 case USERNAME_CHANGED:
