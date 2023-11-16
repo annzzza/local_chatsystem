@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MessageTest {
-    Message msg = new Message(Message.MessageType.DISCOVERYSEND, "Test");
+    Message msg = new Message(Message.MessageType.USER_CONNECTED, "Test");
     GsonBuilder builder = new GsonBuilder()
             .enableComplexMapKeySerialization()
             .setPrettyPrinting();

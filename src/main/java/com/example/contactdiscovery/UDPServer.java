@@ -11,18 +11,25 @@ import com.google.gson.GsonBuilder;
 
 public class UDPServer extends Thread {
     private static volatile UDPServer instance;
-    private static DatagramSocket socket;
+    private static DatagramSocket serverSocket;
+    private DatagramPacket receivedPacket;
     private boolean running;
     private byte[] buffer = new byte[256];
     private int port = 5555;
     private ContactList contactList = new ContactList();
 
+    private final int MAX_UDP_DATAGRAM_LENGTH = 1000; // ?
+
     public UDPServer() {
         try {
-            socket = new DatagramSocket(port);
+            serverSocket = new DatagramSocket(port);
         } catch (SocketException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void dataProcessing(String data) {
+        throw new UnsupportedOperationException();
     }
 
     public void run() {
@@ -31,7 +38,7 @@ public class UDPServer extends Thread {
         while (running) {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             try {
-                socket.receive(packet);
+                serverSocket.receive(packet);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -48,7 +55,7 @@ public class UDPServer extends Thread {
             //according to msg type, different behaviour
             switch(msg.getType()) {
 
-                case USERNAMECHANGE:
+                case USERNAME_CHANGED:
                     if (contactList.contains(msg.getContent())) {
                         msgToClient = "This username: " + msg.getContent() + " is already taken. Please choose another username.";
                     } else {
@@ -58,7 +65,7 @@ public class UDPServer extends Thread {
                     }
                     break;
 
-                case DISCOVERYSEND:
+                case USER_CONNECTED:
                     if (contactList.contains(msg.getContent())) {
                         msgToClient = "This username: " + msg.getContent() + " is already taken. Please choose another username.";
                     } else {
@@ -68,7 +75,7 @@ public class UDPServer extends Thread {
                     }
                     break;
 
-                case DISCOVERYACK:
+                default:
                     break;
             }
 
@@ -85,18 +92,18 @@ public class UDPServer extends Thread {
             buffer = msgToClient.getBytes();
             DatagramPacket responsePacket = new DatagramPacket(buffer, buffer.length, address, packet.getPort());
             try {
-                socket.send(responsePacket);
+                serverSocket.send(responsePacket);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             System.out.println(contactList);
         }
-        socket.close();
+        serverSocket.close();
     }
 
     public static void close() {
-        socket.close();
+        serverSocket.close();
     }
 
     public static UDPServer getInstance() {
