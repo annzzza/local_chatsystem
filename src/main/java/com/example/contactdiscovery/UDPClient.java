@@ -9,15 +9,15 @@ import java.util.Objects;
 
 public class UDPClient {
 
-    private DatagramSocket socket;
-    private InetAddress address;
+    private DatagramSocket clientSocket;
+    private InetAddress clientAddress;
     private byte[] buffer;
     private int port = 5555;
 
     public UDPClient() {
         try {
-            socket = new DatagramSocket();
-            address = InetAddress.getByName("localhost");
+            clientSocket = new DatagramSocket();
+            clientAddress = InetAddress.getByName("localhost");
         } catch (SocketException | UnknownHostException e) {
             throw new RuntimeException(e);
         }
@@ -25,16 +25,20 @@ public class UDPClient {
 
     public String sendUsername(String username) {
         buffer = username.getBytes();
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, port);
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, clientAddress, port);
         try {
-            socket.send(packet);
+            clientSocket.send(packet);
             buffer = new byte[256];
             DatagramPacket responsePacket = new DatagramPacket(buffer, buffer.length);
-            socket.receive(responsePacket);
+            clientSocket.receive(responsePacket);
             return "Response:" + new String(responsePacket.getData(), 0, responsePacket.getLength());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void sendUDP(Message msg, int sendingPort, String sendingAddress) {
+        throw new UnsupportedOperationException();
     }
 
 
@@ -56,21 +60,20 @@ public class UDPClient {
         }
         return broadcastList;
     }
-    public void broadcast(
-            String broadcastMessage) throws IOException {
+    public void sendBroadcast(Message msg, int sendingPort) throws IOException {
         //todo make sure list not empty
         InetAddress address = listAllBroadcastAddresses().get(0);
-        socket = new DatagramSocket();
-        socket.setBroadcast(true);
+        clientSocket = new DatagramSocket();
+        clientSocket.setBroadcast(true);
 
-        byte[] buffer = broadcastMessage.getBytes();
+        byte[] buffer = msg.toString().getBytes();
 
         DatagramPacket packet
-                = new DatagramPacket(buffer, buffer.length, address, port);
-        socket.send(packet);
-        socket.close();
+                = new DatagramPacket(buffer, buffer.length, address, sendingPort);
+        clientSocket.send(packet);
+        clientSocket.close();
     }
 
-    public void close() { socket.close();}
+    public void close() { clientSocket.close();}
 
 }
