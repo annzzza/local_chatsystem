@@ -16,7 +16,6 @@ public class UDPServer extends Thread {
     private boolean running;
     private byte[] buffer = new byte[256];
     private int port = 5555;
-    private ContactList contactList = new ContactList();
 
     private final int MAX_UDP_DATAGRAM_LENGTH = 1000; // ?
 
@@ -53,6 +52,7 @@ public class UDPServer extends Thread {
 
             String msgToClient = "";
             //according to msg type, different behaviour
+            /*
             switch(msg.getType()) {
 
                 case USERNAME_CHANGED:
@@ -98,6 +98,7 @@ public class UDPServer extends Thread {
             }
 
             System.out.println(contactList);
+            */
         }
         serverSocket.close();
     }

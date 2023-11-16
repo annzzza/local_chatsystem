@@ -24,9 +24,6 @@ public class NetworkManager {
     public List<ConnectedUser> discoverNetwork() {
         throw new UnsupportedOperationException();
     }
-    public ContactList startDiscovery() {
-        throw new UnsupportedOperationException();
-    }
 
     public void informDisconnection(User user) {
         throw new UnsupportedOperationException();
