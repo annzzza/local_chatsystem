@@ -1,6 +1,6 @@
 package com.example.contactdiscovery;
 
-public class ContactManager {
+public class NetworkManager {
     public ContactList startDiscovery() {
         throw new UnsupportedOperationException();
     }

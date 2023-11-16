@@ -4,22 +4,22 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class ContactList  {
-    List<Contact> contactList;
+    List<ConnectedUser> contactList;
 
     public ContactList() {
-        contactList = new ArrayList<Contact>();
+        contactList = new ArrayList<ConnectedUser>();
     }
-    public List<Contact> get() {
+    public List<ConnectedUser> get() {
         return contactList;
     }
 
-    public void add(Contact contact) {
-        this.contactList.add(contact);
+    public void add(ConnectedUser connectedUser) {
+        this.contactList.add(connectedUser);
     }
 
 
     public boolean contains(String username) {
-        return this.contactList.stream().anyMatch(contact -> contact.username.equals(username));
+        return this.contactList.stream().anyMatch(connectedUser -> connectedUser.username.equals(username));
     }
 
 }
