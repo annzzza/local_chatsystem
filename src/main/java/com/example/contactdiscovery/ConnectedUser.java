@@ -1,24 +1,39 @@
 package com.example.contactdiscovery;
 
 import java.net.InetAddress;
+import java.util.UUID;
 
 public class ConnectedUser extends User {
 
-    protected InetAddress ipAddress;
+    private InetAddress ip;
 
-    public ConnectedUser(String username, String password, InetAddress ipAddress) {
-        super(username, password);
-        this.ipAddress = ipAddress;
+    public ConnectedUser(String username, InetAddress ip) {
+        super(username);
+        this.ip = ip;
+    }
+    public ConnectedUser(String username, UUID uuid, InetAddress ip) {
+        super(username, uuid);
+        this.ip = ip;
     }
 
-    public InetAddress getIpAddress() {
-        return ipAddress;
+    public InetAddress getIP() {
+        return ip;
+    }
+    public void setIP(InetAddress ip){
+        this.ip=ip;
     }
 
-    public void setIpAddress(InetAddress address) {
-        this.ipAddress = address;
+
+    /**
+    public String getUsername(){
+        return super.getUsername();
+    }
+    public void setUsername(String username){
+        super.setUsername(username);
     }
 
-
-
+    public UUID getUuid(){
+        return super.getUuid();
+    }
+    **/
 }
