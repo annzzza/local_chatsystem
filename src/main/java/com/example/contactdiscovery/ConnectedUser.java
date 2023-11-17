@@ -16,8 +16,13 @@ public class ConnectedUser extends User {
         this.ip = ip;
     }
 
+    public ConnectedUser(User user, InetAddress ip) {
+        super(user.getUsername(), user.getUuid());
+        this.ip = ip;
+    }
+
     public InetAddress getIP() {
-        return ip;
+        return this.ip;
     }
     public void setIP(InetAddress ip){
         this.ip=ip;

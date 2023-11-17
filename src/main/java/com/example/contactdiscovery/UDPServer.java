@@ -8,6 +8,7 @@ import java.net.SocketException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 public class UDPServer extends Thread {
     private static volatile UDPServer instance;
@@ -27,78 +28,51 @@ public class UDPServer extends Thread {
         }
     }
 
-    public void dataProcessing(String data) {
-        throw new UnsupportedOperationException();
+    public void dataProcessing(String data, InetAddress address, int port) {
+        // Convert data to message
+        GsonBuilder builder = new GsonBuilder()
+                .enableComplexMapKeySerialization()
+                .setPrettyPrinting();
+        Gson gson = builder.create();
+
+        System.out.println(data);
+
+        Message receivedMessage = new Gson().fromJson(data, Message.class);
+
+        switch (receivedMessage.getType()) {
+            case USER_CONNECTED -> {
+                ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
+                NetworkManager.getInstance().notifyConnected(user);
+            }
+            case TEXT_MESSAGE -> {
+
+            }
+            case USERNAME_CHANGED -> {
+
+            }
+            case  USER_DISCONNECTED -> {
+                ConnectedUser user = new ConnectedUser(receivedMessage.getReceiver(), address);
+                NetworkManager.getInstance().notifyDisconnected(user);
+            }
+        }
     }
 
     public void run() {
         running = true;
 
         while (running) {
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            receivedPacket = new DatagramPacket(buffer, buffer.length);
+
             try {
-                serverSocket.receive(packet);
+                serverSocket.receive(receivedPacket);
+                InetAddress receivedAddress = receivedPacket.getAddress();
+                int receivedPort = receivedPacket.getPort();
+                String receivedString = new String(receivedPacket.getData(), 0, receivedPacket.getLength());
+
+                dataProcessing(receivedString, receivedAddress, receivedPort);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-
-            InetAddress address = packet.getAddress();
-            int port = packet.getPort();
-            String received = new String(packet.getData(), 0, packet.getLength());
-
-
-            /*
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            Message msg = gson.fromJson(received, Message.class);
-
-            String msgToClient = "";
-            //according to msg type, different behaviour
-            switch(msg.getType()) {
-
-                case USERNAME_CHANGED:
-                    if (contactList.contains(msg.getContent())) {
-                        msgToClient = "This username: " + msg.getContent() + " is already taken. Please choose another username.";
-                    } else {
-                        msgToClient = "Welcome " + msg.getContent();
-                        //todo: update username in ContactList to new username for the given password and IPaddress
-                        //contactList.add(msg);
-                    }
-                    break;
-
-                case USER_CONNECTED:
-                    if (contactList.contains(msg.getContent())) {
-                        msgToClient = "This username: " + msg.getContent() + " is already taken. Please choose another username.";
-                    } else {
-                        msgToClient = "Welcome " + msg.getContent();
-                        //todo: update username in ContactList to new username for the given password and IPaddress
-                        //contactList.add(msg);
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-
-
-
-            //todo : understand which msg case the following code belongs to
-            if (contactList.contains(msg.getContent())) {
-                msgToClient = "You should not pass";
-            } else {
-                msgToClient = "Welcome";
-                //contactList.add(msg);
-            }
-
-            buffer = msgToClient.getBytes();
-            DatagramPacket responsePacket = new DatagramPacket(buffer, buffer.length, address, packet.getPort());
-            try {
-                serverSocket.send(responsePacket);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            System.out.println(contactList);
-            */
         }
         serverSocket.close();
     }

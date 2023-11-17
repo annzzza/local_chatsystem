@@ -11,24 +11,24 @@ public class Main {
     public static void main(String[] args) throws UnknownHostException {
 
 
-        //UDPServer server = UDPServer.getInstance();
-        //server.start();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        UDPClient anna = new UDPClient();
-        UDPClient ronan = new UDPClient();
-
+        Message msg = new Message(Message.MessageType.USER_CONNECTED, "coucou", new Date(), new User("Ronan"), new User("Anna"));
+        System.out.println((gson.toJson(msg)));
+        UDPServer udpServer = new UDPServer();
+        udpServer.start();
         /**
         System.out.println(anna.sendUsername("Anna"));
         System.out.println(ronan.sendUsername("Ronan"));
         System.out.println(anna.sendUsername("Ronan"));
 **/
-        Gson gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .create();
-        Message msg = new Message(Message.MessageType.USER_CONNECTED, "coucou");
+
+        UDPClient anna = new UDPClient();
+        UDPClient ronan = new UDPClient();
+
         System.out.println(gson.toJson(msg));
 
-        anna.sendUDP(msg, 5554, "localhost");
+        anna.sendUDP(msg, 5555, "localhost");
 
         anna.close();
         ronan.close();
