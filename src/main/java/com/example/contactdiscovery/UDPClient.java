@@ -60,7 +60,7 @@ public class UDPClient {
         }
         return broadcastList;
     }
-    public void sendBroadcast(Message msg, int sendingPort) throws IOException {
+    public void sendUDPBroadcast(Message msg, int sendingPort) throws IOException {
         //todo make sure list not empty
         InetAddress address = listAllBroadcastAddresses().get(0);
         clientSocket = new DatagramSocket();

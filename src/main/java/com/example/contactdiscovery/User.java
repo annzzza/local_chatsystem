@@ -16,6 +16,7 @@ public class User {
         this.uuid=uuid;
     }
 
+
     public boolean equals(User user){
         return (this.uuid==user.uuid);
     }

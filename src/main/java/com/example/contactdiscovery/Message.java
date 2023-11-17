@@ -1,23 +1,18 @@
 package com.example.contactdiscovery;
 
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
-public class Message implements java.io.Serializable {
-
-
-    public Message(MessageType type, String content) {
-        this.type = type;
-        this.content = content;
-    }
-
+public class Message {
     public enum MessageType {USER_CONNECTED, USER_DISCONNECTED, USERNAME_CHANGED, TEXT_MESSAGE};
 
     /** Properties **/
     private MessageType type;
     private String content;
-    private Date date;
+    private Date date = new Date();
     private User sender;
     private User receiver;
     private UUID uuid;
@@ -25,6 +20,23 @@ public class Message implements java.io.Serializable {
 
     /** No-arg constructor **/
     public Message(){   }
+
+    public Message(MessageType type, String content, Date date, User sender, User receiver, UUID uuid) {
+        this.type = type;
+        this.content = content;
+        this.date = date;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.uuid = uuid;
+    }
+    public Message(MessageType type, String content, Date date, User sender, User receiver) {
+        this.type = type;
+        this.content = content;
+        this.date = date;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.uuid = UUID.randomUUID();
+    }
 
     /**
      * Getter for property type
@@ -81,6 +93,7 @@ public class Message implements java.io.Serializable {
 
     @Override
     public String toString() {
-        return super.toString();
+        Gson g = new GsonBuilder().setPrettyPrinting().create();
+        return g.toJson(this);
     }
 }
