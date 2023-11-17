@@ -8,7 +8,7 @@ import java.net.*;
 import java.util.*;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnknownHostException {
 
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -26,10 +26,9 @@ public class Main {
         UDPClient anna = new UDPClient();
         UDPClient ronan = new UDPClient();
 
-        Message msg1 = new Message(Message.MessageType.USER_CONNECTED, "coucou");
         System.out.println(gson.toJson(msg));
 
-        anna.sendUDP(msg1, 5554, "localhost");
+        anna.sendUDP(msg, 5555, "localhost");
 
         anna.close();
         ronan.close();
