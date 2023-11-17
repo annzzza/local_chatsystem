@@ -1,6 +1,7 @@
 package com.example.contactdiscovery;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.net.*;
@@ -21,9 +22,11 @@ public class Main {
         System.out.println(ronan.sendUsername("Ronan"));
         System.out.println(anna.sendUsername("Ronan"));
 **/
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .create();
         Message msg = new Message(Message.MessageType.USER_CONNECTED, "coucou");
-        System.out.println(msg.toString());
-        System.out.println(new Gson().toJson(msg));
+        System.out.println(gson.toJson(msg));
 
         anna.sendUDP(msg, 5554, "localhost");
 

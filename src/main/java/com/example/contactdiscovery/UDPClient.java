@@ -1,6 +1,7 @@
 package com.example.contactdiscovery;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.net.*;
@@ -43,8 +44,12 @@ public class UDPClient {
 
     public void sendUDP(Message msg, int sendingPort, String sendingAddress) throws UnknownHostException {
 
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .create();
+
         InetAddress address = InetAddress.getByName(sendingAddress);
-        buffer = (new Gson().toJson(msg)).getBytes();
+        buffer = (gson.toJson(msg)).getBytes();
         try {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, sendingPort);
             clientSocket.send(packet);
@@ -73,12 +78,15 @@ public class UDPClient {
         return broadcastList;
     }
     public void sendBroadcast(Message msg, int sendingPort) throws IOException {
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .create();
 
         List<InetAddress> groupBroadcast = listAllBroadcastAddresses();
         if (groupBroadcast.isEmpty()){
             throw new IllegalStateException("no broadcast address available");
         } else {
-            byte[] buffer = msg.toString().getBytes();
+            byte[] buffer = gson.toJson(msg).getBytes();
             for (InetAddress address : groupBroadcast) {
                 clientSocket.setBroadcast(true);
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, sendingPort);
