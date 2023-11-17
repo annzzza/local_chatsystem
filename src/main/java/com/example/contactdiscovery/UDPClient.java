@@ -1,5 +1,7 @@
 package com.example.contactdiscovery;
 
+import org.apache.commons.collections4.iterators.EmptyListIterator;
+
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class UDPClient {
         }
     }
 
+    /**
     public String sendUsername(String username) {
         buffer = username.getBytes();
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, clientAddress, port);
@@ -36,9 +39,18 @@ public class UDPClient {
             throw new RuntimeException(e);
         }
     }
+**/
 
-    public void sendUDP(Message msg, int sendingPort, String sendingAddress) {
-        throw new UnsupportedOperationException();
+    public void sendUDP(Message msg, int sendingPort, String sendingAddress) throws UnknownHostException {
+
+        InetAddress address = InetAddress.getByName(sendingAddress);
+        buffer = msg.toString().getBytes();
+        try {
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, sendingPort);
+            clientSocket.send(packet);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -61,17 +73,18 @@ public class UDPClient {
         return broadcastList;
     }
     public void sendBroadcast(Message msg, int sendingPort) throws IOException {
-        //todo make sure list not empty
-        InetAddress address = listAllBroadcastAddresses().get(0);
-        clientSocket = new DatagramSocket();
-        clientSocket.setBroadcast(true);
 
-        byte[] buffer = msg.toString().getBytes();
-
-        DatagramPacket packet
-                = new DatagramPacket(buffer, buffer.length, address, sendingPort);
-        clientSocket.send(packet);
-        clientSocket.close();
+        List<InetAddress> groupBroadcast = listAllBroadcastAddresses();
+        if (groupBroadcast.isEmpty()){
+            throw new IllegalStateException("no broadcast address available");
+        } else {
+            byte[] buffer = msg.toString().getBytes();
+            for (InetAddress address : groupBroadcast) {
+                clientSocket.setBroadcast(true);
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, sendingPort);
+                clientSocket.send(packet);
+            }
+        }
     }
 
     public void close() { clientSocket.close();}
