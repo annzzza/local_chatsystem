@@ -27,9 +27,11 @@ public class NetworkManager {
     }
 
     public void notifyDisconnected(ConnectedUser user) {
-        if(connectedUserList.contains(user)) {
+        if(connectedUserList.stream().anyMatch(u -> u.getUsername().equals(user.getUsername()))) {
             System.out.printf("Removed user from contactList: %s%n", user.getUsername());
             connectedUserList.remove(user);
+        } else {
+            System.out.printf("User not found in contactList: %s%n", user.getUsername());
         }
     }
 

@@ -14,6 +14,8 @@ public class Main {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         Message msg = new Message(Message.MessageType.USER_CONNECTED, "coucou", new Date(), new User("Ronan"), new User("Anna"));
+        Message msgout = new Message(Message.MessageType.USER_DISCONNECTED, "ciao", new Date(), new User("Ronan"), new User("Anna"));
+
         System.out.println((gson.toJson(msg)));
         UDPServer udpServer = new UDPServer();
         udpServer.start();
@@ -29,6 +31,7 @@ public class Main {
         System.out.println(gson.toJson(msg));
 
         anna.sendUDP(msg, 5555, "localhost");
+        anna.sendUDP(msgout, 5555, "localhost");
 
         anna.close();
         ronan.close();

@@ -51,7 +51,7 @@ public class UDPServer extends Thread {
 
             }
             case  USER_DISCONNECTED -> {
-                ConnectedUser user = new ConnectedUser(receivedMessage.getReceiver(), address);
+                ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
                 NetworkManager.getInstance().notifyDisconnected(user);
             }
         }
