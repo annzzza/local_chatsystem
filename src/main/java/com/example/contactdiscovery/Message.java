@@ -1,6 +1,7 @@
 package com.example.contactdiscovery;
 
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ public class Message implements java.io.Serializable {
     public Message(MessageType type, String content) {
         this.type = type;
         this.content = content;
+        this.setDate();
     }
 
     public enum MessageType {USER_CONNECTED, USER_DISCONNECTED, USERNAME_CHANGED, TEXT_MESSAGE};
@@ -55,8 +57,8 @@ public class Message implements java.io.Serializable {
         return date;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDate() {
+        this.date = new Date();
     }
 
     public User getSender() {
