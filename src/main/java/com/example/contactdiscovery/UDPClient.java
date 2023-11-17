@@ -1,6 +1,6 @@
 package com.example.contactdiscovery;
 
-import org.apache.commons.collections4.iterators.EmptyListIterator;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.net.*;
@@ -44,7 +44,7 @@ public class UDPClient {
     public void sendUDP(Message msg, int sendingPort, String sendingAddress) throws UnknownHostException {
 
         InetAddress address = InetAddress.getByName(sendingAddress);
-        buffer = msg.toString().getBytes();
+        buffer = (new Gson().toJson(msg)).getBytes();
         try {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, sendingPort);
             clientSocket.send(packet);
