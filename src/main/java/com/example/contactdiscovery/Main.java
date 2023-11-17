@@ -11,26 +11,27 @@ public class Main {
     public static void main(String[] args) {
 
 
-//        UDPServer server = UDPServer.getInstance();
-//        server.start();
-//
-//        UDPClient anna = new UDPClient();
-//        UDPClient ronan = new UDPClient();
-//
-//        System.out.println(anna.sendUsername("Anna"));
-//        System.out.println(ronan.sendUsername("Ronan"));
-//        System.out.println(anna.sendUsername("Ronan"));
-//
-//
-//        anna.close();
-//        ronan.close();
-
-        Gson g = new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         Message msg = new Message(Message.MessageType.USER_CONNECTED, "coucou", new Date(), new User("Ronan"), new User("Anna"));
-        System.out.println((g.toJson(msg)));
+        System.out.println((gson.toJson(msg)));
         UDPServer udpServer = new UDPServer();
         udpServer.start();
+        /**
+        System.out.println(anna.sendUsername("Anna"));
+        System.out.println(ronan.sendUsername("Ronan"));
+        System.out.println(anna.sendUsername("Ronan"));
+**/
 
+        UDPClient anna = new UDPClient();
+        UDPClient ronan = new UDPClient();
+
+        Message msg1 = new Message(Message.MessageType.USER_CONNECTED, "coucou");
+        System.out.println(gson.toJson(msg));
+
+        anna.sendUDP(msg1, 5554, "localhost");
+
+        anna.close();
+        ronan.close();
     }
 }

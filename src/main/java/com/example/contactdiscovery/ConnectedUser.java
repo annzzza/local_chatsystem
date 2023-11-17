@@ -28,17 +28,4 @@ public class ConnectedUser extends User {
         this.ip=ip;
     }
 
-
-    /**
-    public String getUsername(){
-        return super.getUsername();
-    }
-    public void setUsername(String username){
-        super.setUsername(username);
-    }
-
-    public UUID getUuid(){
-        return super.getUuid();
-    }
-    **/
 }
