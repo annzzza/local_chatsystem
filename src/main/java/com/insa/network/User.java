@@ -1,4 +1,4 @@
-package com.example.contactdiscovery;
+package com.insa.network;
 
 import java.util.UUID;
 

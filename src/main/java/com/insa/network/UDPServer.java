@@ -1,4 +1,4 @@
-package com.example.contactdiscovery;
+package com.insa.network;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -8,7 +8,8 @@ import java.net.SocketException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
+import com.insa.utils.Constants;
+import com.insa.utils.Logger;
 
 public class UDPServer extends Thread {
     private static volatile UDPServer instance;
@@ -16,9 +17,9 @@ public class UDPServer extends Thread {
     private DatagramPacket receivedPacket;
     private boolean running;
     private byte[] buffer = new byte[256];
-    private int port = 5555;
+    private int port = Constants.UDP_SERVER_PORT;
 
-    private final int MAX_UDP_DATAGRAM_LENGTH = 1000; // ?
+    private final int MAX_UDP_DATAGRAM_LENGTH = Constants.MAX_UDP_PACKET_SIZE; // ?
 
     public UDPServer() {
         try {
@@ -35,7 +36,7 @@ public class UDPServer extends Thread {
                 .setPrettyPrinting();
         Gson gson = builder.create();
 
-        System.out.println(data);
+        Logger.getInstance().log(data);
 
         Message receivedMessage = new Gson().fromJson(data, Message.class);
 

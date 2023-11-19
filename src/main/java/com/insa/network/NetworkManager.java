@@ -1,4 +1,6 @@
-package com.example.contactdiscovery;
+package com.insa.network;
+
+import com.insa.utils.Logger;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -9,29 +11,31 @@ public class NetworkManager {
     private UDPServer udpServer;
     private InetAddress myIP;
     private String myIPString;
-    private List<ConnectedUser> connectedUserList;
+    private final List<ConnectedUser> connectedUserList;
+    private com.insa.utils.Logger logger;
 
 
     public NetworkManager() {
         connectedUserList = new ArrayList<>();
+        logger = Logger.getInstance();
 //        this.myIPString = ip;
 //        throw new UnsupportedOperationException();
     }
     public void notifyConnected(ConnectedUser user){
         if(connectedUserList.stream().noneMatch(u -> u.getUsername().equals(user.getUsername()))) {
-            System.out.printf("Added user to contactList: %s%n", user.getUsername());
+            logger.log(String.format("Added user to contactList: %s%n", user.getUsername()));
             connectedUserList.add(user);
         } else {
-            System.out.printf("User already in contactList: %s%n", user.getUsername());
+            logger.log(String.format("User already in contactList: %s%n", user.getUsername()));
         }
     }
 
     public void notifyDisconnected(ConnectedUser user) {
         if(connectedUserList.stream().anyMatch(u -> u.getUsername().equals(user.getUsername()))) {
-            System.out.printf("Removed user from contactList: %s%n", user.getUsername());
+            logger.log(String.format("Removed user from contactList: %s%n", user.getUsername()));
             connectedUserList.remove(user);
         } else {
-            System.out.printf("User not found in contactList: %s%n", user.getUsername());
+            logger.log(String.format("User not found in contactList: %s%n", user.getUsername()));
         }
     }
 

@@ -73,7 +73,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.example.contactdiscovery.Main</mainClass>
+                            <mainClass>com.insa.app.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
