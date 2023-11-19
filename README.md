@@ -1,5 +1,25 @@
-# Carbonara recipe
+# Chat System
 
+## À propos du projet
+
+Chat System est un logiciel de communication décentralisé créé dans le cadre de la 4 IR à l'INSA Toulouse.
+Il permet à des utilisateurs de communiquer ensemble dans même réseau. Il est développé en Java et est conçu pour être déployé sur un réseau d'entreprise fermé: pas de connexion à l'Internet nécessaire.
+
+## How to run the program
+
+You will need Maven and Java 19.
+
+To **compile** it, run the following command:
+```bash
+mvn clean package
+```
+
+To **run** it, execute the following command:
+```bash
+java -jar target/chatsystem-bonnet-cazeneuve-1.0-SNAPSHOT.jar
+```
+
+## Carbonara recipe
 For one lonely person:
 - 2 eggs
 - 50g parmesan cheese
