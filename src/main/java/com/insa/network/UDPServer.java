@@ -8,7 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.insa.database.LocalDatabase;
 import com.insa.utils.Constants;
-import com.insa.utils.Logger;
+import com.insa.utils.MyLogger;
 
 public class UDPServer extends Thread {
     private static volatile UDPServer instance;
@@ -30,18 +30,17 @@ public class UDPServer extends Thread {
 
     public void dataProcessing(String data, InetAddress address, int port) {
         // Convert data to message
-        GsonBuilder builder = new GsonBuilder()
-                .enableComplexMapKeySerialization()
-                .setPrettyPrinting();
-        Gson gson = builder.create();
-
-        Logger.getInstance().log(data);
-
         Message receivedMessage = new Gson().fromJson(data, Message.class);
+
+        MyLogger.info("Message received: \n" + new GsonBuilder()
+                .setPrettyPrinting()
+                .create()
+                .toJson(receivedMessage)
+        );
 
         switch (receivedMessage.getType()) {
             case DISCOVERY -> {
-                Logger.getInstance().log("Discovery message received.");
+                MyLogger.info("Discovery message received.");
                 ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
                 NetworkManager.getInstance().notifyConnected(user);
 
@@ -52,13 +51,22 @@ public class UDPServer extends Thread {
 
                 UDPClient client = new UDPClient();
                 try {
-                    client.sendUDP(answer, Constants.UDP_SERVER_PORT, String.valueOf(address));
+                    String addressStr = String.valueOf(address);
+                    addressStr = addressStr.replace("/", "");
+
+                    client.sendUDP(answer, Constants.UDP_SERVER_PORT, String.valueOf(addressStr));
                 } catch (UnknownHostException e) {
                     throw new RuntimeException(e);
                 }
+
+                MyLogger.info("Display connectedUserList:\n" + new GsonBuilder()
+                            .setPrettyPrinting()
+                            .create()
+                            .toJson(LocalDatabase.Database.connectedUserList)
+                );
             }
             case USER_CONNECTED -> {
-                Logger.getInstance().log("User connected message received.");
+                MyLogger.info("User connected message received.");
                 ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
                 NetworkManager.getInstance().notifyConnected(user);
             }
@@ -69,7 +77,7 @@ public class UDPServer extends Thread {
 
             }
             case  USER_DISCONNECTED -> {
-                Logger.getInstance().log("User disconnected message received.");
+                MyLogger.info("User disconnected message received.");
                 ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
                 NetworkManager.getInstance().notifyDisconnected(user);
             }

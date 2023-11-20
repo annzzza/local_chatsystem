@@ -4,34 +4,34 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.insa.network.*;
 import com.insa.utils.Constants;
-import com.insa.utils.Logger;
+import com.insa.utils.MyLogger;
 import javafx.stage.Stage;
 
 import java.net.*;
 import java.util.*;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception, UnknownHostException, InterruptedException {
 
-        Logger logger = Logger.getInstance();
-        logger.log("Launching app");
+        // Initalize logger
+        MyLogger logger = MyLogger.getInstance();
+        MyLogger.info("Launching app");
 
         // Network manager creation
         NetworkManager networkManager = NetworkManager.getInstance();
 
-        logger.log("Begin client discovery");
-        networkManager.discoverNetwork("Anna");
+        MyLogger.info("Begin client discovery");
+        LocalDatabase.Database.currentUser = new User("Ronan");
+        networkManager.discoverNetwork("Ronan");
 
-        logger.log("Waiting for responses");
+        MyLogger.info("Waiting for responses");
         Thread.sleep(Constants.DISCOVERY_TIMEOUT);
 
-        logger.log("Discovery finished");
+        MyLogger.info("Discovery finished");
 
-        logger.log("Client disconnect");
 
+        MyLogger.info("Display contacts list");
         App app = new App();
         app.start(new Stage());
-
-
     }
 }
