@@ -60,7 +60,7 @@ public class UDPServer extends Thread {
                     throw new RuntimeException(e);
                 }
 
-                Logger.getInstance().log(new GsonBuilder()
+                Logger.getInstance().log("contactList:\n" + new GsonBuilder()
                         .setPrettyPrinting()
                         .create()
                         .toJson(LocalDatabase.Database.connectedUserList));

@@ -1,5 +1,6 @@
 package com.insa.network;
 
+import com.insa.database.LocalDatabase;
 import com.insa.utils.Constants;
 import com.insa.utils.Logger;
 
@@ -15,12 +16,10 @@ public class NetworkManager {
     private UDPServer udpServer;
     private InetAddress myIP;
     private String myIPString;
-    private final List<ConnectedUser> connectedUserList;
     private com.insa.utils.Logger logger;
 
 
     public NetworkManager() {
-        connectedUserList = new ArrayList<>();
         logger = Logger.getInstance();
         udpServer = new UDPServer();
         udpServer.start();
@@ -28,18 +27,18 @@ public class NetworkManager {
 //        throw new UnsupportedOperationException();
     }
     public void notifyConnected(ConnectedUser user){
-        if(connectedUserList.stream().noneMatch(u -> u.getUsername().equals(user.getUsername()))) {
+        if(LocalDatabase.Database.connectedUserList.stream().noneMatch(u -> u.getUsername().equals(user.getUsername()))) {
             logger.log(String.format("Added user to contactList: %s%n", user.getUsername()));
-            connectedUserList.add(user);
+            LocalDatabase.Database.connectedUserList.add(user);
         } else {
             logger.log(String.format("User already in contactList: %s%n", user.getUsername()));
         }
     }
 
     public void notifyDisconnected(ConnectedUser user) {
-        if(connectedUserList.stream().anyMatch(u -> u.getUsername().equals(user.getUsername()))) {
+        if(LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(user.getUsername()))) {
             logger.log(String.format("Removed user from contactList: %s%n", user.getUsername()));
-            connectedUserList.remove(user);
+            LocalDatabase.Database.connectedUserList.remove(user);
         } else {
             logger.log(String.format("User not found in contactList: %s%n", user.getUsername()));
         }
@@ -54,7 +53,7 @@ public class NetworkManager {
 
         UDPClient udpClient = new UDPClient();
         Message discoveryMessage = new Message();
-        discoveryMessage.setType(Message.MessageType.USER_CONNECTED);
+        discoveryMessage.setType(Message.MessageType.DISCOVERY);
         discoveryMessage.setDate(new Date());
         discoveryMessage.setSender(new User(username));
 
@@ -64,10 +63,6 @@ public class NetworkManager {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public List<ConnectedUser> getConnectedUserList() {
-        return this.connectedUserList;
     }
 
     public void informDisconnection(User user) {
