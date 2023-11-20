@@ -52,10 +52,18 @@ public class UDPServer extends Thread {
 
                 UDPClient client = new UDPClient();
                 try {
-                    client.sendUDP(answer, Constants.UDP_SERVER_PORT, String.valueOf(address));
+                    String addressStr = String.valueOf(address);
+                    addressStr = addressStr.replace("/", "");
+
+                    client.sendUDP(answer, Constants.UDP_SERVER_PORT, String.valueOf(addressStr));
                 } catch (UnknownHostException e) {
                     throw new RuntimeException(e);
                 }
+
+                Logger.getInstance().log("contactList:\n" + new GsonBuilder()
+                        .setPrettyPrinting()
+                        .create()
+                        .toJson(LocalDatabase.Database.connectedUserList));
             }
             case USER_CONNECTED -> {
                 Logger.getInstance().log("User connected message received.");

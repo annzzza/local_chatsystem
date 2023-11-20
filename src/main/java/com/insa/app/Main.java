@@ -2,6 +2,7 @@ package com.insa.app;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.insa.database.LocalDatabase;
 import com.insa.network.*;
 import com.insa.utils.Constants;
 import com.insa.utils.Logger;
@@ -19,13 +20,16 @@ public class Main {
         NetworkManager networkManager = NetworkManager.getInstance();
 
         logger.log("Begin client discovery");
-        networkManager.discoverNetwork("Anna");
+        LocalDatabase.Database.currentUser = new User("Ronan");
+        networkManager.discoverNetwork("Ronan");
 
         logger.log("Waiting for responses");
         Thread.sleep(Constants.DISCOVERY_TIMEOUT);
 
         logger.log("Discovery finished");
 
-        logger.log("Client disconnect");
+        logger.log("Display contacts list");
+
+
     }
 }
