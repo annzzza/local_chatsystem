@@ -1,13 +1,12 @@
 package com.insa.network;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
+import java.util.Date;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.insa.database.LocalDatabase;
 import com.insa.utils.Constants;
 import com.insa.utils.Logger;
 
@@ -41,7 +40,25 @@ public class UDPServer extends Thread {
         Message receivedMessage = new Gson().fromJson(data, Message.class);
 
         switch (receivedMessage.getType()) {
+            case DISCOVERY -> {
+                Logger.getInstance().log("Discovery message received.");
+                ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
+                NetworkManager.getInstance().notifyConnected(user);
+
+                Message answer = new Message();
+                answer.setType(Message.MessageType.USER_CONNECTED);
+                answer.setDate(new Date());
+                answer.setSender(LocalDatabase.Database.currentUser);
+
+                UDPClient client = new UDPClient();
+                try {
+                    client.sendUDP(answer, Constants.UDP_SERVER_PORT, String.valueOf(address));
+                } catch (UnknownHostException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             case USER_CONNECTED -> {
+                Logger.getInstance().log("User connected message received.");
                 ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
                 NetworkManager.getInstance().notifyConnected(user);
             }
@@ -52,6 +69,7 @@ public class UDPServer extends Thread {
 
             }
             case  USER_DISCONNECTED -> {
+                Logger.getInstance().log("User disconnected message received.");
                 ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
                 NetworkManager.getInstance().notifyDisconnected(user);
             }

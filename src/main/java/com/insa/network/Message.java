@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.UUID;
 
 public class Message {
-    public enum MessageType {USER_CONNECTED, USER_DISCONNECTED, USERNAME_CHANGED, TEXT_MESSAGE};
+    public enum MessageType {DISCOVERY, USER_CONNECTED, USER_DISCONNECTED, USERNAME_CHANGED, TEXT_MESSAGE};
 
     /** Properties **/
     private MessageType type;
