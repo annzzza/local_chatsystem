@@ -1,5 +1,6 @@
 package com.insa.network;
 
+import com.insa.database.LocalDatabase;
 import com.insa.utils.Constants;
 import com.insa.utils.Logger;
 
@@ -45,16 +46,17 @@ public class NetworkManager {
         }
     }
 
-    public void discoverNetwork(String username) {
+    public boolean discoverNetwork(String username) {
         // Create UDP Client
         // Check UDPServer running
         // CLient -> broadcast coucou
         // Waiting for answers with timeout
         // update contactlist
+        boolean userInDB = false;
 
         UDPClient udpClient = new UDPClient();
         Message discoveryMessage = new Message();
-        discoveryMessage.setType(Message.MessageType.USER_CONNECTED);
+        discoveryMessage.setType(Message.MessageType.DISCOVERY);
         discoveryMessage.setDate(new Date());
         discoveryMessage.setSender(new User(username));
 
@@ -64,6 +66,16 @@ public class NetworkManager {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        List<ConnectedUser> contactList = LocalDatabase.Database.connectedUserList;
+        if (!contactList.isEmpty()){
+            for (ConnectedUser connectedUser :contactList){
+                if (connectedUser.getUsername().equals(username)) {
+                    userInDB = true; break;
+                }
+            }
+        }
+        return userInDB;
     }
 
     public List<ConnectedUser> getConnectedUserList() {

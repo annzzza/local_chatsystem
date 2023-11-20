@@ -2,6 +2,7 @@ package com.insa.network;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.insa.utils.Constants;
 
 import java.io.IOException;
 import java.net.*;
@@ -15,7 +16,8 @@ public class UDPClient {
     private DatagramSocket clientSocket;
     private InetAddress clientAddress;
     private byte[] buffer;
-    private int port = 5555;
+    private final int MAX_UDP_DATAGRAM_LENGTH = Constants.MAX_UDP_PACKET_SIZE; // ?
+
 
     public UDPClient() {
         try {
