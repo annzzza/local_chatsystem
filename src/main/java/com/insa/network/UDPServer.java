@@ -25,20 +25,16 @@ public class UDPServer extends Thread {
     public UDPServer() {
         try {
             serverSocket = new DatagramSocket(port);
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface ni = interfaces.nextElement();
-                Enumeration<InetAddress> addresses = ni.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    InetAddress addr = addresses.nextElement();
-                    if (!addr.isLinkLocalAddress() && !addr.isLoopbackAddress() && addr.isSiteLocalAddress()) {
-                        System.out.println("Current IP address : " + addr.getHostAddress());
-                    }
-                }
-            }
-            serverAddress = InetAddress.getLocalHost();
 
-        } catch (SocketException | UnknownHostException e) {
+            try(final DatagramSocket socket = new DatagramSocket()){
+                try {
+                    socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+                } catch (UnknownHostException e) {
+                    throw new RuntimeException(e);
+                }
+                serverAddress = socket.getLocalAddress();
+            }
+        } catch (SocketException e) {
             throw new RuntimeException(e);
         }
     }
@@ -113,7 +109,10 @@ public class UDPServer extends Thread {
 
                 MyLogger.info(receivedAddress.toString());
                 MyLogger.info(serverAddress.toString());
-                if (receivedAddress != serverAddress) {
+                MyLogger.info("Addresses are the same?" + receivedAddress.toString() +"?=" + serverAddress.toString()
+                        + ":" + receivedAddress.toString().equals(serverAddress.toString()));
+                if (!receivedAddress.toString().equals(serverAddress.toString())) {
+                    MyLogger.info("Process data");
                     dataProcessing(receivedString, receivedAddress, receivedPort);
                 }
             } catch (IOException e) {

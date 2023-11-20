@@ -90,7 +90,7 @@ public class MainWindow {
             chooseOtherUsernameLabel.setTextFill(Color.rgb(255,0,0));
             chooseOtherUsernameLabel.setText("Username not available, please choose a new one.");
         } else {
-            // continue
+            chooseOtherUsernameLabel.setText("Connected");
         }
     }
 }
