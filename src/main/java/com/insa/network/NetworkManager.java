@@ -1,10 +1,14 @@
 package com.insa.network;
 
+import com.insa.utils.Constants;
 import com.insa.utils.Logger;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Timer;
 
 public class NetworkManager {
     private static volatile NetworkManager instance;
@@ -18,6 +22,8 @@ public class NetworkManager {
     public NetworkManager() {
         connectedUserList = new ArrayList<>();
         logger = Logger.getInstance();
+        udpServer = new UDPServer();
+        udpServer.start();
 //        this.myIPString = ip;
 //        throw new UnsupportedOperationException();
     }
@@ -39,8 +45,29 @@ public class NetworkManager {
         }
     }
 
-    public List<ConnectedUser> discoverNetwork() {
-        throw new UnsupportedOperationException();
+    public void discoverNetwork(String username) {
+        // Create UDP Client
+        // Check UDPServer running
+        // CLient -> broadcast coucou
+        // Waiting for answers with timeout
+        // update contactlist
+
+        UDPClient udpClient = new UDPClient();
+        Message discoveryMessage = new Message();
+        discoveryMessage.setType(Message.MessageType.USER_CONNECTED);
+        discoveryMessage.setDate(new Date());
+        discoveryMessage.setSender(new User(username));
+
+        try {
+            logger.log("Broadcast sent");
+            udpClient.sendBroadcast(discoveryMessage, Constants.UDP_SERVER_PORT);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<ConnectedUser> getConnectedUserList() {
+        return this.connectedUserList;
     }
 
     public void informDisconnection(User user) {
