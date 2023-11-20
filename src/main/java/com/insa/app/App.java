@@ -8,9 +8,6 @@ import com.insa.network.User;
 import com.insa.utils.Constants;
 import com.insa.utils.MyLogger;
 import javafx.application.Application;
-import javafx.scene.Parent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class App extends Application {
@@ -19,27 +16,11 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        mainWindow.start(new Stage());
-
         // Initalize logger
         MyLogger logger = MyLogger.getInstance();
         MyLogger.info("Launching app");
 
-        // Network manager creation
-        NetworkManager networkManager = NetworkManager.getInstance();
-
-        MyLogger.info("Begin client discovery");
-        LocalDatabase.Database.currentUser = new User("Ronan");
-        networkManager.discoverNetwork("Ronan");
-
-        MyLogger.info("Waiting for responses");
-        Thread.sleep(Constants.DISCOVERY_TIMEOUT);
-
-        MyLogger.info("Discovery finished");
-
-
-        MyLogger.info("Display contacts list");
-
+        mainWindow.start();
     }
 
     public static void main(String[] args){

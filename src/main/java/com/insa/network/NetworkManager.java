@@ -18,7 +18,7 @@ public class NetworkManager {
     private String myIPString;
 
 
-    public NetworkManager() {
+    private NetworkManager() {
         udpServer = new UDPServer();
         udpServer.start();
 //        this.myIPString = ip;
@@ -64,13 +64,11 @@ public class NetworkManager {
     }
 
     public boolean discoverNetwork(String username) {
-        // Create UDP Client
-        // Check UDPServer running
-        // CLient -> broadcast coucou
-        // Waiting for answers with timeout
-        // update contactlist
         boolean userInDB = false;
 
+        MyLogger.info("Begin client discovery");
+
+        // Message creation
         UDPClient udpClient = new UDPClient();
         Message discoveryMessage = new Message();
         discoveryMessage.setType(Message.MessageType.DISCOVERY);
@@ -78,20 +76,27 @@ public class NetworkManager {
         discoveryMessage.setSender(new User(username));
 
         try {
-            MyLogger.info("Broadcast sent");
+            MyLogger.info("Broadcast discovery sent");
             udpClient.sendBroadcast(discoveryMessage, Constants.UDP_SERVER_PORT);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        List<ConnectedUser> contactList = LocalDatabase.Database.connectedUserList;
-        if (!contactList.isEmpty()){
-            for (ConnectedUser connectedUser :contactList){
-                if (connectedUser.getUsername().equals(username)) {
-                    userInDB = true; break;
-                }
-            }
+        MyLogger.info("Waiting for responses");
+        try {
+            Thread.sleep(Constants.DISCOVERY_TIMEOUT);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+
+
+        MyLogger.info("Checking whether the username is already taken...");
+        List<ConnectedUser> contactList = LocalDatabase.Database.connectedUserList;
+        if (!contactList.isEmpty() && contactList.stream().anyMatch(u -> u.getUsername().equals(username))) {
+                userInDB = true;
+        }
+        MyLogger.info("Discovery finished");
+
         return userInDB;
     }
 

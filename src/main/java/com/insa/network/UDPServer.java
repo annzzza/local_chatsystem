@@ -3,6 +3,7 @@ package com.insa.network;
 import java.io.IOException;
 import java.net.*;
 import java.util.Date;
+import java.util.Enumeration;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,6 +15,7 @@ public class UDPServer extends Thread {
     private static volatile UDPServer instance;
     private static DatagramSocket serverSocket;
     private DatagramPacket receivedPacket;
+    private InetAddress serverAddress;
     private boolean running;
     private byte[] buffer = new byte[256];
     private int port = Constants.UDP_SERVER_PORT;
@@ -23,7 +25,20 @@ public class UDPServer extends Thread {
     public UDPServer() {
         try {
             serverSocket = new DatagramSocket(port);
-        } catch (SocketException e) {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface ni = interfaces.nextElement();
+                Enumeration<InetAddress> addresses = ni.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    if (!addr.isLinkLocalAddress() && !addr.isLoopbackAddress() && addr.isSiteLocalAddress()) {
+                        System.out.println("Current IP address : " + addr.getHostAddress());
+                    }
+                }
+            }
+            serverAddress = InetAddress.getLocalHost();
+
+        } catch (SocketException | UnknownHostException e) {
             throw new RuntimeException(e);
         }
     }
@@ -96,7 +111,11 @@ public class UDPServer extends Thread {
                 int receivedPort = receivedPacket.getPort();
                 String receivedString = new String(receivedPacket.getData(), 0, receivedPacket.getLength());
 
-                dataProcessing(receivedString, receivedAddress, receivedPort);
+                MyLogger.info(receivedAddress.toString());
+                MyLogger.info(serverAddress.toString());
+                if (receivedAddress != serverAddress) {
+                    dataProcessing(receivedString, receivedAddress, receivedPort);
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
