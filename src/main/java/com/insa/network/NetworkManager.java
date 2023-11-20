@@ -1,46 +1,63 @@
 package com.insa.network;
 
+import com.google.gson.GsonBuilder;
 import com.insa.database.LocalDatabase;
 import com.insa.utils.Constants;
-import com.insa.utils.Logger;
+import com.insa.utils.MyLogger;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Timer;
 
 public class NetworkManager {
     private static volatile NetworkManager instance;
     private UDPServer udpServer;
     private InetAddress myIP;
     private String myIPString;
-    private com.insa.utils.Logger logger;
 
 
     public NetworkManager() {
-        logger = Logger.getInstance();
         udpServer = new UDPServer();
         udpServer.start();
 //        this.myIPString = ip;
 //        throw new UnsupportedOperationException();
     }
-    public void notifyConnected(ConnectedUser user){
-        if(LocalDatabase.Database.connectedUserList.stream().noneMatch(u -> u.getUsername().equals(user.getUsername()))) {
-            logger.log(String.format("Added user to contactList: %s%n", user.getUsername()));
+
+    public void notifyConnected(ConnectedUser user) {
+        if (LocalDatabase.Database.connectedUserList.stream().noneMatch(u -> u.getUsername().equals(user.getUsername()))) {
+            MyLogger.info(String.format("Added user to connectedUserList: %s\n",
+                    new GsonBuilder()
+                            .setPrettyPrinting()
+                            .create()
+                            .toJson(user))
+            );
             LocalDatabase.Database.connectedUserList.add(user);
         } else {
-            logger.log(String.format("User already in contactList: %s%n", user.getUsername()));
+            MyLogger.info(String.format("User already in connectedUserList: %s\n",
+                    new GsonBuilder()
+                            .setPrettyPrinting()
+                            .create()
+                            .toJson(user))
+            );
         }
     }
 
     public void notifyDisconnected(ConnectedUser user) {
-        if(LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(user.getUsername()))) {
-            logger.log(String.format("Removed user from contactList: %s%n", user.getUsername()));
+        if (LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(user.getUsername()))) {
+            MyLogger.info(String.format("Removed user from connectedUserList: %s\n",
+                    new GsonBuilder()
+                            .setPrettyPrinting()
+                            .create()
+                            .toJson(user))
+            );
             LocalDatabase.Database.connectedUserList.remove(user);
         } else {
-            logger.log(String.format("User not found in contactList: %s%n", user.getUsername()));
+            MyLogger.info(String.format("User not found in connectedUserList: %s\n",
+                    new GsonBuilder()
+                            .setPrettyPrinting()
+                            .create()
+                            .toJson(user))
+            );
         }
     }
 
@@ -58,7 +75,7 @@ public class NetworkManager {
         discoveryMessage.setSender(new User(username));
 
         try {
-            logger.log("Broadcast sent");
+            MyLogger.info("Broadcast sent");
             udpClient.sendBroadcast(discoveryMessage, Constants.UDP_SERVER_PORT);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -71,11 +88,11 @@ public class NetworkManager {
 
     public static NetworkManager getInstance() {
         NetworkManager result = instance;
-        if(result != null) {
+        if (result != null) {
             return result;
         }
         synchronized (NetworkManager.class) {
-            if(instance == null) {
+            if (instance == null) {
                 instance = new NetworkManager();
             }
             return instance;

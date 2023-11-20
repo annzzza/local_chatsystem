@@ -1,35 +1,32 @@
 package com.insa.app;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.insa.database.LocalDatabase;
 import com.insa.network.*;
 import com.insa.utils.Constants;
-import com.insa.utils.Logger;
+import com.insa.utils.MyLogger;
 
 import java.net.*;
-import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws UnknownHostException, InterruptedException {
 
-        Logger logger = Logger.getInstance();
-        logger.log("Launching app");
+        // Initalize logger
+        MyLogger logger = MyLogger.getInstance();
+        MyLogger.info("Launching app");
 
         // Network manager creation
         NetworkManager networkManager = NetworkManager.getInstance();
 
-        logger.log("Begin client discovery");
+        MyLogger.info("Begin client discovery");
         LocalDatabase.Database.currentUser = new User("Ronan");
         networkManager.discoverNetwork("Ronan");
 
-        logger.log("Waiting for responses");
+        MyLogger.info("Waiting for responses");
         Thread.sleep(Constants.DISCOVERY_TIMEOUT);
 
-        logger.log("Discovery finished");
-
-        logger.log("Display contacts list");
+        MyLogger.info("Discovery finished");
 
 
+        MyLogger.info("Display contacts list");
     }
 }
