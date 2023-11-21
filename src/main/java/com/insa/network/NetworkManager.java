@@ -45,6 +45,7 @@ public class NetworkManager {
     }
 
     public void notifyDisconnected(ConnectedUser user) {
+        //TODO check if it's not better to use user.equals(other user) ((uuid check))
         if (LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(user.getUsername()))) {
             MyLogger.info(String.format("Removed user from connectedUserList: %s\n",
                     new GsonBuilder()
@@ -55,6 +56,25 @@ public class NetworkManager {
             LocalDatabase.Database.connectedUserList.remove(user);
         } else {
             MyLogger.info(String.format("User not found in connectedUserList: %s\n",
+                    new GsonBuilder()
+                            .setPrettyPrinting()
+                            .create()
+                            .toJson(user))
+            );
+        }
+    }
+
+    //TODO notifychangeusername
+
+    public void notifyChangeUsername(ConnectedUser user, String newUsername){
+        if (LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(newUsername))) {
+            MyLogger.info(String.format("Username already used in connectedUserList, has not been updated."));
+        } else {
+            LocalDatabase.Database.connectedUserList.remove(user);
+            user.setUsername(newUsername);
+            LocalDatabase.Database.connectedUserList.add(user);
+
+            MyLogger.info(String.format("Username has been changed in connectedUserList: %s\n",
                     new GsonBuilder()
                             .setPrettyPrinting()
                             .create()
@@ -100,9 +120,42 @@ public class NetworkManager {
         return userInDB;
     }
 
-    public void informDisconnection(User user) {
-        throw new UnsupportedOperationException();
+    public void sendChangeUsername(ConnectedUser user, String newUsername){
+
+        MyLogger.info(String.format("Change username to: %s Message sent.", newUsername));
+
+        UDPClient udpClient = new UDPClient();
+        Message changeUsernameMessage = new Message();
+        changeUsernameMessage.setType(Message.MessageType.USERNAME_CHANGED);
+        changeUsernameMessage.setSender(user);
+        changeUsernameMessage.setDate(new Date());
+        changeUsernameMessage.setContent(newUsername);
+
+        try {
+            udpClient.sendBroadcast(changeUsernameMessage, Constants.UDP_SERVER_PORT);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+    //HAS ALSO BEEN DONE : disconnection of a user
+    public void sendDisconnection(ConnectedUser user) {
+
+        MyLogger.info("Disconnection message sent.");
+
+        UDPClient udpClient = new UDPClient();
+        Message disconnectedMessage = new Message();
+        disconnectedMessage.setType(Message.MessageType.USER_DISCONNECTED);
+        disconnectedMessage.setDate(new Date());
+        disconnectedMessage.setSender(user);
+
+        try {
+            udpClient.sendBroadcast(disconnectedMessage, Constants.UDP_SERVER_PORT);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public static NetworkManager getInstance() {
         NetworkManager result = instance;
