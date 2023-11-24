@@ -1,11 +1,6 @@
 package com.insa.app;
 
-
 import com.insa.GUI.MainWindow;
-import com.insa.database.LocalDatabase;
-import com.insa.network.NetworkManager;
-import com.insa.network.User;
-import com.insa.utils.Constants;
 import com.insa.utils.MyLogger;
 import javafx.application.Application;
 import javafx.stage.Stage;
