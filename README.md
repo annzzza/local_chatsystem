@@ -52,12 +52,12 @@ Two versions of the program are implemented:
 
 To **run no-gui**, execute the following command:
 ```bash
-java -jar target/chatsystem-bonnet-cazeneuve-1.0-SNAPSHOT.jar no-gui
+java -jar target/chatsystem-bonnet-cazeneuve-1.0-SNAPSHOT-jar-with-dependencies.jar no-gui
 ```
 
 To **run default version** of it, execute the following command:
 ```bash
-java -jar target/chatsystem-bonnet-cazeneuve-1.0-SNAPSHOT.jar
+java -jar target/chatsystem-bonnet-cazeneuve-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
 ## Carbonara recipe
