@@ -20,8 +20,10 @@ public class NetworkManager {
 
 
     private NetworkManager() {
-        udpServer = new UDPServer();
-        udpServer.start();
+        udpServer = UDPServer.getInstance();
+        if(!udpServer.isAlive()) {
+            udpServer.start();
+        }
 //        this.myIPString = ip;
 //        throw new UnsupportedOperationException();
     }
