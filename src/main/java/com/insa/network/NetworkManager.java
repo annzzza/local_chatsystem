@@ -136,6 +136,7 @@ public class NetworkManager {
 
         try {
             udpClient.sendBroadcast(changeUsernameMessage, Constants.UDP_SERVER_PORT);
+            LocalDatabase.Database.currentUser = new User(newUsername, LocalDatabase.Database.currentUser.getUuid());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
