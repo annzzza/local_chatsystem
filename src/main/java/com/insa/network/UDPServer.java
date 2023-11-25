@@ -20,7 +20,7 @@ public class UDPServer extends Thread {
     private byte[] buffer = new byte[Constants.MAX_UDP_PACKET_SIZE];
     private int port = Constants.UDP_SERVER_PORT;
 
-    public UDPServer() {
+    private UDPServer() {
         try {
             serverSocket = new DatagramSocket(port);
 
