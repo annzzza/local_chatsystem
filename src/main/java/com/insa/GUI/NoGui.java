@@ -3,6 +3,8 @@ package com.insa.GUI;
 import com.insa.database.LocalDatabase;
 import com.insa.network.ConnectedUser;
 import com.insa.network.NetworkManager;
+import com.insa.network.UDPClient;
+import com.insa.network.User;
 import com.insa.utils.MyLogger;
 
 import java.util.Scanner;
@@ -14,13 +16,12 @@ public class NoGui {
 
     boolean connected;
     String[] options;
+    Scanner scanner;
 
     private NoGui() {
         connected = false;
-        options = new String[]{
-                "u - Choose username",
-                "q - Quit",
-        };
+        options = makeOptions();
+        scanner = new Scanner(System.in);
         menuManager();
     }
 
@@ -38,84 +39,104 @@ public class NoGui {
     }
 
     public void menuManager() {
-        Scanner scanner = new Scanner(System.in);
         char selectedOption = '1';
-        while (selectedOption != 'q' || selectedOption != 'Q') {
-            printMenu(options);
+        while (selectedOption != 'q' && selectedOption != 'Q') {
+            printMenu(makeOptions());
             try {
-                selectedOption = (char) System.in.read();
-                switch (selectedOption) {
-                    case 'u', 'U' -> {
-                        usernameOption();
+                selectedOption = (char) scanner.next().charAt(0);
+                if (connected) {
+                    switch (selectedOption) {
+                        case 'c', 'C' -> changeUsernameOption();
+                        case 'd', 'D' -> disconnectOption();
+                        case 'l', 'L' -> showConnectedUserOption();
+                        case 'Q', 'q' -> quitOption();
                     }
-                    case 'c', 'C' -> {
-                        changeUsernameOption();
-                    }
-                    case  'd', 'D' -> {
-                        disconnectOption();
-                    }
-                    case  'l', 'L' -> {
-                        showConnectedUserOption();
-                    }
-                    case 'Q', 'q' -> {
-                        quitOption();
+                } else {
+                    switch (selectedOption) {
+                        case 'u', 'U' -> usernameOption();
+                        case 'Q', 'q' -> quitOption();
                     }
                 }
+
             } catch (Exception e) {
                 System.out.println("Please enter the letter associated to your option.");
+                e.printStackTrace();
                 scanner.next();
             }
         }
     }
 
-    public void printMenu(String[] options) {
-        for (String option : options) {
-            System.out.println(option);
-        }
-        System.out.println("Choose your option: ");
-    }
-
-    public void usernameOption() {
-        Scanner scanner = new Scanner(System.in);
-        String selectedUsername = "";
-        while (selectedUsername.isBlank()) {
-            System.out.println("Write your username: ");
-            selectedUsername = scanner.next();
-        }
-        NetworkManager nwm = NetworkManager.getInstance();
-        MyLogger.getInstance().info("Begin client discovery");
-        if (nwm.discoverNetwork(selectedUsername)) {
-            System.out.println("Username not available, please choose a new one.");
+    private String[] makeOptions() {
+        if (!connected) {
+            return new String[]{
+                    "u - Choose username",
+                    "q - Quit",
+            };
         } else {
-            connected = true;
-            options = new String[]{
+            return new String[]{
                     "c - Change username",
                     "l - Show connectedUser",
                     "d - Disconnect",
                     "q - Quit",
             };
+        }
+    }
+
+    public void printMenu(String[] options) {
+        System.out.println("\nMENU:");
+        for (String option : options) {
+            System.out.println(option);
+        }
+        System.out.print("Choose your option: ");
+    }
+
+    public void usernameOption() {
+        String selectedUsername = "";
+        while (selectedUsername.isBlank()) {
+            System.out.print("Write your username: ");
+            selectedUsername = scanner.next();
+        }
+        LocalDatabase.Database.currentUser = new User(selectedUsername);
+        NetworkManager nwm = NetworkManager.getInstance();
+        if (nwm.discoverNetwork(selectedUsername)) {
+            System.out.println("Username not available, please choose a new one.");
+        } else {
+            connected = true;
             System.out.println("Connected");
         }
     }
 
     public void changeUsernameOption() {
+        String selectedUsername = "";
+        while (selectedUsername.isBlank()) {
+            System.out.println("Write new username: ");
+            selectedUsername = scanner.next();
+        }
+        ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
+
+        NetworkManager.getInstance().notifyChangeUsername(currentUser, selectedUsername);
+        System.out.println("Username changed!");
 
     }
 
     public void showConnectedUserOption() {
         System.out.println("Display connected users:");
-        for(ConnectedUser u : LocalDatabase.Database.connectedUserList) {
-            System.out.println("\t" +u.getUsername());
+        for (ConnectedUser u : LocalDatabase.Database.connectedUserList) {
+            System.out.println("\t" + u.getUsername());
         }
         System.out.println();
     }
+
     public void disconnectOption() {
+        NetworkManager.getInstance().sendDisconnection(new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP));
+        connected = false;
     }
 
     public void quitOption() {
-        if(connected) {
+        if (connected) {
             disconnectOption();
         }
+        connected = false;
         exit(0);
     }
 }

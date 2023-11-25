@@ -92,7 +92,7 @@ public class UDPServer extends Thread {
             }
             case USERNAME_CHANGED -> {
                 //TODO call notifyChangeUsername
-                MyLogger.info("Username changed message received.");
+                MyLogger.getInstance().info("Username changed message received.");
                 ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
                 String newUsername = receivedMessage.getContent();
                 NetworkManager.getInstance().notifyChangeUsername(user, newUsername);

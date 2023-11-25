@@ -11,7 +11,7 @@ import static java.lang.System.exit;
 
 public class Main {
     public static void main(String[] args) {
-        MyLogger.getInstance().info(Arrays.toString(args));
+        MyLogger.getInstance().info("Args: " + Arrays.toString(args));
         if (Arrays.asList(args).contains("no-gui")) {
             MyLogger.getInstance().info("Running with no gui");
             NoGui.getInstance();

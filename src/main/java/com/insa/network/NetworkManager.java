@@ -68,13 +68,13 @@ public class NetworkManager {
 
     public void notifyChangeUsername(ConnectedUser user, String newUsername){
         if (LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(newUsername))) {
-            MyLogger.info(String.format("Username already used in connectedUserList, has not been updated."));
+            MyLogger.getInstance().info(String.format("Username already used in connectedUserList, has not been updated."));
         } else {
             LocalDatabase.Database.connectedUserList.remove(user);
             user.setUsername(newUsername);
             LocalDatabase.Database.connectedUserList.add(user);
 
-            MyLogger.info(String.format("Username has been changed in connectedUserList: %s\n",
+            MyLogger.getInstance().info(String.format("Username has been changed in connectedUserList: %s\n",
                     new GsonBuilder()
                             .setPrettyPrinting()
                             .create()
@@ -122,7 +122,7 @@ public class NetworkManager {
 
     public void sendChangeUsername(ConnectedUser user, String newUsername){
 
-        MyLogger.info(String.format("Change username to: %s Message sent.", newUsername));
+        MyLogger.getInstance().info(String.format("Change username to: %s Message sent.", newUsername));
 
         UDPClient udpClient = new UDPClient();
         Message changeUsernameMessage = new Message();
@@ -141,7 +141,7 @@ public class NetworkManager {
     //HAS ALSO BEEN DONE : disconnection of a user
     public void sendDisconnection(ConnectedUser user) {
 
-        MyLogger.info("Disconnection message sent.");
+        MyLogger.getInstance().info("Disconnection message sent.");
 
         UDPClient udpClient = new UDPClient();
         Message disconnectedMessage = new Message();
