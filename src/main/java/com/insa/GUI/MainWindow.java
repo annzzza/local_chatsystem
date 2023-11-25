@@ -91,6 +91,9 @@ public class MainWindow {
             chooseOtherUsernameLabel.setText("Username not available, please choose a new one.");
         } else {
             chooseOtherUsernameLabel.setText("Connected");
-        }
+
+            SecondWindow secondWindow = new SecondWindow();
+            secondWindow.start();
+        };
     }
 }
