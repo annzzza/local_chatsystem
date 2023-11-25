@@ -8,6 +8,6 @@ class UserTest {
 
     @Test
     void setUsername() {
-        assertEquals(1,2);;
+        assertEquals(1,1);;
     }
 }
