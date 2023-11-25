@@ -72,9 +72,10 @@ public class NetworkManager {
         if (LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(newUsername))) {
             MyLogger.getInstance().info(String.format("Username already used in connectedUserList, has not been updated."));
         } else {
-            LocalDatabase.Database.connectedUserList.stream().filter(u -> u.getUsername().equals(user.getUsername()))
-                    .findAny()
-                    .ifPresent(u -> u.setUsername(user.getUsername()));
+            boolean removed = LocalDatabase.Database.connectedUserList.removeIf(u -> u.getUsername().equals(user.getUsername()));
+            if(removed) {
+                LocalDatabase.Database.connectedUserList.add(new ConnectedUser(newUsername, user.getIP()));
+            }
 
             MyLogger.getInstance().info(String.format("Username has been changed in connectedUserList: %s\n",
                     new GsonBuilder()
