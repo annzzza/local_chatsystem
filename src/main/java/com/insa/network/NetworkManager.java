@@ -7,6 +7,7 @@ import com.insa.utils.MyLogger;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -70,9 +71,9 @@ public class NetworkManager {
         if (LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(newUsername))) {
             MyLogger.getInstance().info(String.format("Username already used in connectedUserList, has not been updated."));
         } else {
-            LocalDatabase.Database.connectedUserList.remove(user);
-            user.setUsername(newUsername);
-            LocalDatabase.Database.connectedUserList.add(user);
+            LocalDatabase.Database.connectedUserList.stream().filter(u -> u.getUsername().equals(user.getUsername()))
+                    .findAny()
+                    .ifPresent(u -> u.setUsername(user.getUsername()));
 
             MyLogger.getInstance().info(String.format("Username has been changed in connectedUserList: %s\n",
                     new GsonBuilder()
@@ -151,6 +152,8 @@ public class NetworkManager {
 
         try {
             udpClient.sendBroadcast(disconnectedMessage, Constants.UDP_SERVER_PORT);
+            LocalDatabase.Database.connectedUserList = new ArrayList<>();
+            LocalDatabase.Database.currentUser = null;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

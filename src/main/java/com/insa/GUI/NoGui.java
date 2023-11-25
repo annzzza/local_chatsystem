@@ -114,7 +114,7 @@ public class NoGui {
         }
         ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
 
-        NetworkManager.getInstance().notifyChangeUsername(currentUser, selectedUsername);
+        NetworkManager.getInstance().sendChangeUsername(currentUser, selectedUsername);
         System.out.println("Username changed!");
 
     }
