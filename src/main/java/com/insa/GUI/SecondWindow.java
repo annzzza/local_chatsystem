@@ -61,7 +61,7 @@ public class SecondWindow {
     private void changeUsernameButtonHandler(){
         NetworkManager nwm = NetworkManager.getInstance();
 
-        MyLogger.info("Clicked changeUsername");
+        MyLogger.getInstance().info("Clicked changeUsername");
 
         if (!inputNewUsername.getText().isEmpty()){
             ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
@@ -69,7 +69,7 @@ public class SecondWindow {
             changedUsernameLabel.setText("Username changed!");
         }
         else {
-            MyLogger.info("Empty textfield new username");
+            MyLogger.getInstance().info("Empty textfield new username");
         }
 
     }

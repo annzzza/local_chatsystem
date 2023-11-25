@@ -84,7 +84,7 @@ public class MainWindow {
 
         NetworkManager nwm = NetworkManager.getInstance();
 
-        MyLogger.info("Begin client discovery");
+        MyLogger.getInstance().info("Begin client discovery");
         if(nwm.discoverNetwork(inputUsername.getText())) {
 
             chooseOtherUsernameLabel.setTextFill(Color.rgb(255,0,0));

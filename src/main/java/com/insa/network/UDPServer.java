@@ -17,10 +17,8 @@ public class UDPServer extends Thread {
     private DatagramPacket receivedPacket;
     private InetAddress serverAddress;
     private boolean running;
-    private byte[] buffer = new byte[256];
+    private byte[] buffer = new byte[Constants.MAX_UDP_PACKET_SIZE];
     private int port = Constants.UDP_SERVER_PORT;
-
-    private final int MAX_UDP_DATAGRAM_LENGTH = Constants.MAX_UDP_PACKET_SIZE; // ?
 
     public UDPServer() {
         try {
@@ -41,9 +39,10 @@ public class UDPServer extends Thread {
 
     public void dataProcessing(String data, InetAddress address, int port) {
         // Convert data to message
+        MyLogger.getInstance().info(data);
         Message receivedMessage = new Gson().fromJson(data, Message.class);
 
-        MyLogger.info("Message received: \n" + new GsonBuilder()
+        MyLogger.getInstance().info("Message received: \n" + new GsonBuilder()
                 .setPrettyPrinting()
                 .create()
                 .toJson(receivedMessage)
@@ -51,7 +50,7 @@ public class UDPServer extends Thread {
 
         switch (receivedMessage.getType()) {
             case DISCOVERY -> {
-                MyLogger.info("Discovery message received.");
+                MyLogger.getInstance().info("Discovery message received.");
                 ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
                 NetworkManager.getInstance().notifyConnected(user);
 
@@ -61,23 +60,30 @@ public class UDPServer extends Thread {
                 answer.setSender(LocalDatabase.Database.currentUser);
 
                 UDPClient client = new UDPClient();
-                try {
-                    String addressStr = String.valueOf(address);
-                    addressStr = addressStr.replace("/", "");
+                String addressStr = String.valueOf(address);
+                addressStr = addressStr.replace("/", "");
 
-                    client.sendUDP(answer, Constants.UDP_SERVER_PORT, String.valueOf(addressStr));
-                } catch (UnknownHostException e) {
+
+                Gson gson = new GsonBuilder()
+                        .setPrettyPrinting()
+                        .create();
+
+                buffer = (gson.toJson(answer)).getBytes();
+                try {
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, Constants.UDP_SERVER_PORT);
+                    serverSocket.send(packet);
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
 
-                MyLogger.info("Display connectedUserList:\n" + new GsonBuilder()
+                MyLogger.getInstance().info("Display connectedUserList:\n" + new GsonBuilder()
                             .setPrettyPrinting()
                             .create()
                             .toJson(LocalDatabase.Database.connectedUserList)
                 );
             }
             case USER_CONNECTED -> {
-                MyLogger.info("User connected message received.");
+                MyLogger.getInstance().info("User connected message received.");
                 ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
                 NetworkManager.getInstance().notifyConnected(user);
             }
@@ -86,14 +92,14 @@ public class UDPServer extends Thread {
             }
             case USERNAME_CHANGED -> {
                 //TODO call notifyChangeUsername
-                MyLogger.info("Username changed message received.");
+                MyLogger.getInstance().info("Username changed message received.");
                 ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
                 String newUsername = receivedMessage.getContent();
                 NetworkManager.getInstance().notifyChangeUsername(user, newUsername);
 
             }
             case  USER_DISCONNECTED -> {
-                MyLogger.info("User disconnected message received.");
+                MyLogger.getInstance().info("User disconnected message received.");
                 ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
                 NetworkManager.getInstance().notifyDisconnected(user);
             }
@@ -104,20 +110,20 @@ public class UDPServer extends Thread {
         running = true;
 
         while (running) {
+            buffer = new byte[Constants.MAX_UDP_PACKET_SIZE];
             receivedPacket = new DatagramPacket(buffer, buffer.length);
-
             try {
                 serverSocket.receive(receivedPacket);
                 InetAddress receivedAddress = receivedPacket.getAddress();
                 int receivedPort = receivedPacket.getPort();
                 String receivedString = new String(receivedPacket.getData(), 0, receivedPacket.getLength());
 
-                MyLogger.info(receivedAddress.toString());
-                MyLogger.info(serverAddress.toString());
-                MyLogger.info("Addresses are the same?" + receivedAddress.toString() +"?=" + serverAddress.toString()
+                MyLogger.getInstance().info(receivedAddress.toString());
+                MyLogger.getInstance().info(serverAddress.toString());
+                MyLogger.getInstance().info("Addresses are the same?" + receivedAddress.toString() +"?=" + serverAddress.toString()
                         + ":" + receivedAddress.toString().equals(serverAddress.toString()));
                 if (!receivedAddress.toString().equals(serverAddress.toString())) {
-                    MyLogger.info("Process data");
+                    MyLogger.getInstance().info("Process data");
                     dataProcessing(receivedString, receivedAddress, receivedPort);
                 }
             } catch (IOException e) {

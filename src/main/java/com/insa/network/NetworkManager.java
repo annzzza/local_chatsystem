@@ -27,7 +27,7 @@ public class NetworkManager {
 
     public void notifyConnected(ConnectedUser user) {
         if (LocalDatabase.Database.connectedUserList.stream().noneMatch(u -> u.getUsername().equals(user.getUsername()))) {
-            MyLogger.info(String.format("Added user to connectedUserList: %s\n",
+            MyLogger.getInstance().info(String.format("Added user to connectedUserList: %s\n",
                     new GsonBuilder()
                             .setPrettyPrinting()
                             .create()
@@ -35,7 +35,7 @@ public class NetworkManager {
             );
             LocalDatabase.Database.connectedUserList.add(user);
         } else {
-            MyLogger.info(String.format("User already in connectedUserList: %s\n",
+            MyLogger.getInstance().info(String.format("User already in connectedUserList: %s\n",
                     new GsonBuilder()
                             .setPrettyPrinting()
                             .create()
@@ -47,7 +47,7 @@ public class NetworkManager {
     public void notifyDisconnected(ConnectedUser user) {
         //TODO check if it's not better to use user.equals(other user) ((uuid check))
         if (LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(user.getUsername()))) {
-            MyLogger.info(String.format("Removed user from connectedUserList: %s\n",
+            MyLogger.getInstance().info(String.format("Removed user from connectedUserList: %s\n",
                     new GsonBuilder()
                             .setPrettyPrinting()
                             .create()
@@ -55,7 +55,7 @@ public class NetworkManager {
             );
             LocalDatabase.Database.connectedUserList.remove(user);
         } else {
-            MyLogger.info(String.format("User not found in connectedUserList: %s\n",
+            MyLogger.getInstance().info(String.format("User not found in connectedUserList: %s\n",
                     new GsonBuilder()
                             .setPrettyPrinting()
                             .create()
@@ -68,13 +68,13 @@ public class NetworkManager {
 
     public void notifyChangeUsername(ConnectedUser user, String newUsername){
         if (LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(newUsername))) {
-            MyLogger.info(String.format("Username already used in connectedUserList, has not been updated."));
+            MyLogger.getInstance().info(String.format("Username already used in connectedUserList, has not been updated."));
         } else {
             LocalDatabase.Database.connectedUserList.remove(user);
             user.setUsername(newUsername);
             LocalDatabase.Database.connectedUserList.add(user);
 
-            MyLogger.info(String.format("Username has been changed in connectedUserList: %s\n",
+            MyLogger.getInstance().info(String.format("Username has been changed in connectedUserList: %s\n",
                     new GsonBuilder()
                             .setPrettyPrinting()
                             .create()
@@ -86,7 +86,7 @@ public class NetworkManager {
     public boolean discoverNetwork(String username) {
         boolean userInDB = false;
 
-        MyLogger.info("Begin client discovery");
+        MyLogger.getInstance().info("Begin client discovery");
 
         // Message creation
         UDPClient udpClient = new UDPClient();
@@ -96,13 +96,13 @@ public class NetworkManager {
         discoveryMessage.setSender(new User(username));
 
         try {
-            MyLogger.info("Broadcast discovery sent");
+            MyLogger.getInstance().info("Broadcast discovery sent");
             udpClient.sendBroadcast(discoveryMessage, Constants.UDP_SERVER_PORT);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        MyLogger.info("Waiting for responses");
+        MyLogger.getInstance().info("Waiting for responses");
         try {
             Thread.sleep(Constants.DISCOVERY_TIMEOUT);
         } catch (InterruptedException e) {
@@ -110,19 +110,19 @@ public class NetworkManager {
         }
 
 
-        MyLogger.info("Checking whether the username is already taken...");
+        MyLogger.getInstance().info("Checking whether the username is already taken...");
         List<ConnectedUser> contactList = LocalDatabase.Database.connectedUserList;
         if (!contactList.isEmpty() && contactList.stream().anyMatch(u -> u.getUsername().equals(username))) {
                 userInDB = true;
         }
-        MyLogger.info("Discovery finished");
+        MyLogger.getInstance().info("Discovery finished");
 
         return userInDB;
     }
 
     public void sendChangeUsername(ConnectedUser user, String newUsername){
 
-        MyLogger.info(String.format("Change username to: %s Message sent.", newUsername));
+        MyLogger.getInstance().info(String.format("Change username to: %s Message sent.", newUsername));
 
         UDPClient udpClient = new UDPClient();
         Message changeUsernameMessage = new Message();
@@ -141,7 +141,7 @@ public class NetworkManager {
     //HAS ALSO BEEN DONE : disconnection of a user
     public void sendDisconnection(ConnectedUser user) {
 
-        MyLogger.info("Disconnection message sent.");
+        MyLogger.getInstance().info("Disconnection message sent.");
 
         UDPClient udpClient = new UDPClient();
         Message disconnectedMessage = new Message();

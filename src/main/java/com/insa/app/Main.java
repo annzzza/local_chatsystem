@@ -1,18 +1,22 @@
 package com.insa.app;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.insa.database.LocalDatabase;
-import com.insa.network.*;
-import com.insa.utils.Constants;
+import com.insa.GUI.NoGui;
+import com.insa.network.NetworkManager;
 import com.insa.utils.MyLogger;
-import javafx.stage.Stage;
+import javafx.scene.paint.Color;
 
-import java.net.*;
 import java.util.*;
 
+import static java.lang.System.exit;
+
 public class Main {
-    public static void main(String[] args){
-        App.main(args);
+    public static void main(String[] args) {
+        MyLogger.getInstance().info("Args: " + Arrays.toString(args));
+        if (Arrays.asList(args).contains("no-gui")) {
+            MyLogger.getInstance().info("Running with no gui");
+            NoGui.getInstance();
+        } else {
+            App.main(args);
+        }
     }
 }

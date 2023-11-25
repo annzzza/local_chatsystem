@@ -13,7 +13,7 @@ public class App extends Application {
 
         // Initalize logger
         MyLogger logger = MyLogger.getInstance();
-        MyLogger.info("Launching app");
+        MyLogger.getInstance().info("Launching app");
 
         mainWindow.start();
     }
