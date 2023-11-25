@@ -7,6 +7,7 @@ import com.insa.utils.MyLogger;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -53,7 +54,8 @@ public class NetworkManager {
                             .create()
                             .toJson(user))
             );
-            LocalDatabase.Database.connectedUserList.remove(user);
+            boolean removed = LocalDatabase.Database.connectedUserList.removeIf(u -> u.getUsername().equals(user.getUsername()));
+
         } else {
             MyLogger.getInstance().info(String.format("User not found in connectedUserList: %s\n",
                     new GsonBuilder()
@@ -70,15 +72,16 @@ public class NetworkManager {
         if (LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(newUsername))) {
             MyLogger.getInstance().info(String.format("Username already used in connectedUserList, has not been updated."));
         } else {
-            LocalDatabase.Database.connectedUserList.remove(user);
-            user.setUsername(newUsername);
-            LocalDatabase.Database.connectedUserList.add(user);
+            boolean removed = LocalDatabase.Database.connectedUserList.removeIf(u -> u.getUsername().equals(user.getUsername()));
+            if(removed) {
+                LocalDatabase.Database.connectedUserList.add(new ConnectedUser(newUsername, user.getIP()));
+            }
 
             MyLogger.getInstance().info(String.format("Username has been changed in connectedUserList: %s\n",
                     new GsonBuilder()
                             .setPrettyPrinting()
                             .create()
-                            .toJson(user))
+                            .toJson(LocalDatabase.Database.connectedUserList))
             );
         }
     }
@@ -133,6 +136,7 @@ public class NetworkManager {
 
         try {
             udpClient.sendBroadcast(changeUsernameMessage, Constants.UDP_SERVER_PORT);
+            LocalDatabase.Database.currentUser = new User(newUsername, LocalDatabase.Database.currentUser.getUuid());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -151,6 +155,8 @@ public class NetworkManager {
 
         try {
             udpClient.sendBroadcast(disconnectedMessage, Constants.UDP_SERVER_PORT);
+            LocalDatabase.Database.connectedUserList = new ArrayList<>();
+            LocalDatabase.Database.currentUser = null;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
