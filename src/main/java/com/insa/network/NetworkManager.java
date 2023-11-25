@@ -54,7 +54,7 @@ public class NetworkManager {
                             .create()
                             .toJson(user))
             );
-            LocalDatabase.Database.connectedUserList.remove(user);
+            LocalDatabase.Database.connectedUserList.removeIf(u -> u.getUsername().equals(user.getUsername()));
         } else {
             MyLogger.getInstance().info(String.format("User not found in connectedUserList: %s\n",
                     new GsonBuilder()
