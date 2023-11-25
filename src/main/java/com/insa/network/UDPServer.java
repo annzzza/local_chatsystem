@@ -17,10 +17,8 @@ public class UDPServer extends Thread {
     private DatagramPacket receivedPacket;
     private InetAddress serverAddress;
     private boolean running;
-    private byte[] buffer = new byte[256];
+    private byte[] buffer = new byte[Constants.MAX_UDP_PACKET_SIZE];
     private int port = Constants.UDP_SERVER_PORT;
-
-    private final int MAX_UDP_DATAGRAM_LENGTH = Constants.MAX_UDP_PACKET_SIZE; // ?
 
     public UDPServer() {
         try {
@@ -41,6 +39,7 @@ public class UDPServer extends Thread {
 
     public void dataProcessing(String data, InetAddress address, int port) {
         // Convert data to message
+        MyLogger.getInstance().info(data);
         Message receivedMessage = new Gson().fromJson(data, Message.class);
 
         MyLogger.getInstance().info("Message received: \n" + new GsonBuilder()
@@ -61,12 +60,19 @@ public class UDPServer extends Thread {
                 answer.setSender(LocalDatabase.Database.currentUser);
 
                 UDPClient client = new UDPClient();
-                try {
-                    String addressStr = String.valueOf(address);
-                    addressStr = addressStr.replace("/", "");
+                String addressStr = String.valueOf(address);
+                addressStr = addressStr.replace("/", "");
 
-                    client.sendUDP(answer, Constants.UDP_SERVER_PORT, String.valueOf(addressStr));
-                } catch (UnknownHostException e) {
+
+                Gson gson = new GsonBuilder()
+                        .setPrettyPrinting()
+                        .create();
+
+                buffer = (gson.toJson(answer)).getBytes();
+                try {
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, Constants.UDP_SERVER_PORT);
+                    serverSocket.send(packet);
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
 
@@ -99,8 +105,8 @@ public class UDPServer extends Thread {
         running = true;
 
         while (running) {
+            buffer = new byte[Constants.MAX_UDP_PACKET_SIZE];
             receivedPacket = new DatagramPacket(buffer, buffer.length);
-
             try {
                 serverSocket.receive(receivedPacket);
                 InetAddress receivedAddress = receivedPacket.getAddress();
