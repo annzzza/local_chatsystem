@@ -32,7 +32,7 @@ class UDPClientTest {
         testMessage.setType(Message.MessageType.USER_CONNECTED);
 
         UDPClient udpClient = new UDPClient();
-        udpClient.sendUDP(testMessage, 4444, "192.168.0.75"); //my machine's address -> to be changed
+        udpClient.sendUDP(testMessage, 4444, "localhost"); //my machine's address -> to be changed
 
 
         //in testSocket, reception of the sent message
