@@ -39,11 +39,11 @@ public class MyLogger {
         }
     }
 
-    public static void info(String message) {
+    public void info(String message) {
         log(message, Level.INFO);
     }
 
-    public static void log(String message, Level level) {
+    public void log(String message, Level level) {
         myLog.log(level, message);
     }
 }
