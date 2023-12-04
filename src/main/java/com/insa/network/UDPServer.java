@@ -15,7 +15,7 @@ public class UDPServer extends Thread {
     private static volatile UDPServer instance;
     private static DatagramSocket serverSocket;
     private DatagramPacket receivedPacket;
-    private InetAddress serverAddress;
+    private final InetAddress serverAddress;
     private boolean running;
     private byte[] buffer = new byte[Constants.MAX_UDP_PACKET_SIZE];
     private int port = Constants.UDP_SERVER_PORT;

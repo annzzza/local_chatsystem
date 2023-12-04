@@ -56,41 +56,92 @@ public class Message {
         this.type = type;
     }
 
+    /**
+     * Getter for message content
+     *
+     * @return String content of the message
+     */
     public String getContent() {
         return content;
     }
 
+    /**
+     * Setter for message content
+     *
+     * @param data String
+     */
     public void setContent(String data) {
         this.content = data;
     }
+
+    /**
+     * Getter for property Date
+     *
+     * @return Date
+     */
     public Date getDate() {
         return date;
     }
 
+    /**
+     * Setter for property date
+     *
+     * @param date Date
+     */
     public void setDate(Date date) {
         this.date = date;
     }
 
+    /**
+     * Getter for property Sender
+     *
+     * @return User sender of the message
+     */
     public User getSender() {
         return sender;
     }
 
+    /**
+     * Setter for property Sender
+     *
+     * @param sender User
+     */
     public void setSender(User sender) {
         this.sender = sender;
     }
 
+    /**
+     * Getter for property Receiver
+     *
+     * @return User receiver of message
+     */
     public User getReceiver() {
         return receiver;
     }
 
+    /**
+     * Setter for property Receiver
+     *
+     * @param receiver User
+     */
     public void setReceiver(User receiver) {
         this.receiver = receiver;
     }
 
+    /**
+     * Getter for the unique identifier of the message
+     *
+     * @return Unique identifier for the message
+     */
     public UUID getUuid() {
         return uuid;
     }
 
+    /**
+     * Serializer of the message
+     *
+     * @return String containing the serialized instance of Message
+     */
     @Override
     public String toString() {
         Gson g = new GsonBuilder().setPrettyPrinting().create();
