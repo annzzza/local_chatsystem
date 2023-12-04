@@ -19,15 +19,19 @@ public class NetworkManager {
     private String myIPString;
 
 
+    /**  Constructor of Singleton NetworkManager  **/
     private NetworkManager() {
         udpServer = UDPServer.getInstance();
         if(!udpServer.isAlive()) {
             udpServer.start();
         }
-//        this.myIPString = ip;
-//        throw new UnsupportedOperationException();
     }
 
+    /**
+     * Check if ConnectedUser is already in connectedUserList, adds it if not
+     *
+     * @param user ConnectedUser that notifies of his connection
+     */
     public void notifyConnected(ConnectedUser user) {
         if (LocalDatabase.Database.connectedUserList.stream().noneMatch(u -> u.getUsername().equals(user.getUsername()))) {
             MyLogger.getInstance().info(String.format("Added user to connectedUserList: %s\n",
@@ -47,8 +51,13 @@ public class NetworkManager {
         }
     }
 
+    /**
+     * Remove ConnectedUSer user from database as they disconnect
+     *
+     * @param user ConnectedUser that informs of disconnection
+     */
     public void notifyDisconnected(ConnectedUser user) {
-        //TODO check if it's not better to use user.equals(other user) ((uuid check))
+        //TODO USER is never disconnected??
         if (LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(user.getUsername()))) {
             MyLogger.getInstance().info(String.format("Removed user from connectedUserList: %s\n",
                     new GsonBuilder()
@@ -70,6 +79,12 @@ public class NetworkManager {
 
     //TODO notifychangeusername
 
+    /**
+     * Check if newUsername already used in connectedUSer list ; updates the database if not.
+     *
+     * @param user ConnectedUser sending a request of changeUsername
+     * @param newUsername String chosen new Username
+     */
     public void notifyChangeUsername(ConnectedUser user, String newUsername){
         if (LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(newUsername))) {
             MyLogger.getInstance().info(String.format("Username already used in connectedUserList, has not been updated."));
@@ -125,6 +140,12 @@ public class NetworkManager {
         return userInDB;
     }
 
+    /**
+     * Create an instance of UsernameChanged Message and broadcast it
+     *
+     * @param user ConnectedUser requesting a change of Username
+     * @param newUsername String requested new Username
+     */
     public void sendChangeUsername(ConnectedUser user, String newUsername){
 
         MyLogger.getInstance().info(String.format("Change username to: %s Message sent.", newUsername));
@@ -144,7 +165,11 @@ public class NetworkManager {
         }
     }
 
-    //HAS ALSO BEEN DONE : disconnection of a user
+    /**
+     * Create an instance of UserDisconnected Message and broadcast it
+     *
+     * @param user ConnectedUser disconnecting
+     */
     public void sendDisconnection(ConnectedUser user) {
 
         MyLogger.getInstance().info("Disconnection message sent.");
