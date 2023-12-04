@@ -21,6 +21,7 @@ public class Message {
     /** No-arg constructor **/
     public Message(){   }
 
+    /** Six-args constructor **/
     public Message(MessageType type, String content, Date date, User sender, User receiver, UUID uuid) {
         this.type = type;
         this.content = content;
@@ -29,6 +30,8 @@ public class Message {
         this.receiver = receiver;
         this.uuid = uuid;
     }
+
+    /** Five-args constructor **/
     public Message(MessageType type, String content, Date date, User sender, User receiver) {
         this.type = type;
         this.content = content;
