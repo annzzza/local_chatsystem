@@ -1,13 +1,13 @@
 package com.insa.app;
 
-import com.insa.GUI.MainWindow;
+import com.insa.GUI.LoginWindow;
 import com.insa.utils.MyLogger;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
 public class App extends Application {
 
-    MainWindow mainWindow = new MainWindow();
+    LoginWindow loginWindow = new LoginWindow();
     @Override
     public void start(Stage primaryStage) throws Exception {
 
@@ -15,7 +15,7 @@ public class App extends Application {
         MyLogger logger = MyLogger.getInstance();
         MyLogger.getInstance().info("Launching app");
 
-        mainWindow.start();
+        loginWindow.start();
     }
 
     public static void main(String[] args){
