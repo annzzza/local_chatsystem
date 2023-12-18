@@ -23,18 +23,43 @@ public class UDPServer extends Thread {
     private UDPServer() {
         try {
             serverSocket = new DatagramSocket(port);
-
-            try(final DatagramSocket socket = new DatagramSocket()){
-                try {
-                    socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-                } catch (UnknownHostException e) {
-                    throw new RuntimeException(e);
-                }
-                serverAddress = socket.getLocalAddress();
+            try {
+                serverAddress = getMyIp();
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
             }
         } catch (SocketException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public InetAddress getMyIp() throws SocketException, UnknownHostException {
+        String os = System.getProperty("os.name");
+        InetAddress address = null;
+        if (os.equals("Linux")) {
+            MyLogger.getInstance().info("Linux");
+            Enumeration<NetworkInterface> nics = NetworkInterface
+                    .getNetworkInterfaces();
+            while (nics.hasMoreElements()) {
+                NetworkInterface nic = nics.nextElement();
+                Enumeration<InetAddress> addrs = nic.getInetAddresses();
+                while (addrs.hasMoreElements()) {
+                    InetAddress addr = addrs.nextElement();
+                    if (addr instanceof Inet4Address && !addr.isLoopbackAddress()) {
+                        System.out.println(addr.getHostAddress());
+                        address = InetAddress.getByName(addr.getHostAddress());
+                        break;
+                    }
+                }
+            }
+        } else if (os.startsWith("Windows")) {
+            MyLogger.getInstance().info("Windows");
+            address = InetAddress.getLocalHost(); // Non sense but it works...
+        } else {
+            MyLogger.getInstance().info("OS not supported");
+        }
+
+        return address;
     }
 
     public void dataProcessing(String data, InetAddress address, int port) {
