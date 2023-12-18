@@ -1,9 +1,12 @@
 package com.insa.GUI;
 
 
+import com.insa.GUI.view.ChatClass;
+import com.insa.GUI.view.ChatGUI;
 import com.insa.database.LocalDatabase;
 import com.insa.network.ConnectedUser;
 import com.insa.network.NetworkManager;
+import com.insa.utils.MyLogger;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -11,10 +14,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 public class MainWindow {
 
-    private final JFrame window = new JFrame();
+    private final JFrame window = new JFrame("Clavardages");
     private final JMenuBar menuBar = new JMenuBar();
 
     private final JTextField changeUsernameTextField = new JTextField("New Username");
@@ -30,7 +34,6 @@ public class MainWindow {
             public void actionPerformed(ActionEvent e) {
                 /////DISCONNECT FUNCTION
                 disconnectButtonHandler();
-                System.exit(0);
             }
         });
 
@@ -63,8 +66,29 @@ public class MainWindow {
         window.add(bottomLabel, BorderLayout.SOUTH);
     }
 
+
+    public void createBorderLayoutCenter(){
+        ChatGUI gui = new ChatGUI();
+
+        JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        jSplitPane.setResizeWeight(0.33);
+
+        MyLogger.getInstance().info("OKOKOK");
+
+        DefaultListModel<String> chatItemList = gui.chatListBuilderCorrectVersion();
+
+        JList listChats = new JList(chatItemList);
+
+
+        jSplitPane.setLeftComponent(listChats);
+        jSplitPane.setRightComponent(new Label("HELLO"));
+
+        window.add(jSplitPane, BorderLayout.CENTER);
+    }
+
     public void start(){
         createBorderLayoutTop();
+        createBorderLayoutCenter();
         createBorderLayoutBottom();
 
         window.setSize(800, 600);
@@ -79,10 +103,6 @@ public class MainWindow {
         System.out.println("Clicked changeUsername");
 
         if (!changeUsernameTextField.getText().isEmpty()) {
-            // Replace with your logic for notifying the change in username
-            // ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
-            // nwm.notifyChangeUsername(currentUser, inputNewUsername.getText());
-
             ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
             nwm.notifyChangeUsername(currentUser,changeUsernameTextField.getText());
             //changedUsernameLabel.setText("Username changed!");
@@ -93,7 +113,7 @@ public class MainWindow {
 
     private void disconnectButtonHandler(){
         NetworkManager.getInstance().sendDisconnection(new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP));
-        //connected = false;
+        System.exit(0);
     }
 
 
@@ -106,73 +126,7 @@ public class MainWindow {
 }
 
 
-    /*
-    private final JPanel grid = new JPanel();
-    private final JTextField inputNewUsername = new JTextField();
-    private final JButton changeUsernameButton = new JButton("Change Username");
-    private final JLabel changedUsernameLabel = new JLabel("");
 
-    public void start() {
-        window.setTitle("Chats");
-        window.setSize(400, 275);
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        grid.setLayout(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(10, 10, 10, 10);
-
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        inputNewUsername.setPreferredSize(new Dimension(100, 30));
-        grid.add(inputNewUsername, constraints);
-
-        JPanel buttonBox = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonBox.add(changeUsernameButton);
-        changeUsernameButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                changeUsernameButtonHandler();
-            }
-        });
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        grid.add(buttonBox, constraints);
-
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        grid.add(changedUsernameLabel, constraints);
-
-        window.add(grid);
-        window.setVisible(true);
-    }
-
-    private void changeUsernameButtonHandler() {
-        // Replace with your logic for handling the button click
-        NetworkManager nwm = NetworkManager.getInstance();
-        System.out.println("Clicked changeUsername");
-
-        if (!inputNewUsername.getText().isEmpty()) {
-            // Replace with your logic for notifying the change in username
-            // ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
-            // nwm.notifyChangeUsername(currentUser, inputNewUsername.getText());
-
-            ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
-            nwm.notifyChangeUsername(currentUser,inputNewUsername.getText());
-            changedUsernameLabel.setText("Username changed!");
-            changedUsernameLabel.setText("Username changed!");
-        } else {
-            System.out.println("Empty textfield new username");
-        }
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new MainWindow().start();
-        });
-    }
-}
-
-*/
 
 
 /*
