@@ -44,6 +44,13 @@ public class LoginWindow {
         inputUsername.setPreferredSize(new Dimension(100, 30));
         panel.add(inputUsername, constraints);
 
+        inputUsername.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                enterButtonHandler();
+            }
+        });
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(enterButton);
         enterButton.addActionListener(new ActionListener() {

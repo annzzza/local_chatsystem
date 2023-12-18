@@ -6,13 +6,107 @@ import com.insa.network.ConnectedUser;
 import com.insa.network.NetworkManager;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 
 public class MainWindow {
 
     private final JFrame window = new JFrame();
+    private final JMenuBar menuBar = new JMenuBar();
+
+    private final JTextField changeUsernameTextField = new JTextField("New Username");
+
+
+    public void createBorderLayoutTop(){
+
+        menuBar.add(new JLabel("Menu"));
+
+        JMenuItem disconnectMenuItem = new JMenuItem("Disconnect");
+        disconnectMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                /////DISCONNECT FUNCTION
+                disconnectButtonHandler();
+                System.exit(0);
+            }
+        });
+
+        menuBar.add(disconnectMenuItem);
+        JButton changeUsernameButton = new JButton("Change Username");
+        changeUsernameButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                changeUsernameButtonHandler();
+            }
+        });
+
+        changeUsernameTextField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                changeUsernameButtonHandler();
+            }
+        });
+        menuBar.add(changeUsernameTextField);
+        menuBar.add(changeUsernameButton);
+
+        window.add(menuBar, BorderLayout.NORTH);
+    }
+
+
+    public void createBorderLayoutBottom(){
+
+        JLabel bottomLabel = new JLabel("created by R.B. & A.C.", SwingConstants.LEFT);
+
+        window.add(bottomLabel, BorderLayout.SOUTH);
+    }
+
+    public void start(){
+        createBorderLayoutTop();
+        createBorderLayoutBottom();
+
+        window.setSize(800, 600);
+        window.setVisible(true);
+    }
+
+
+
+    private void changeUsernameButtonHandler() {
+        // Replace with your logic for handling the button click
+        NetworkManager nwm = NetworkManager.getInstance();
+        System.out.println("Clicked changeUsername");
+
+        if (!changeUsernameTextField.getText().isEmpty()) {
+            // Replace with your logic for notifying the change in username
+            // ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
+            // nwm.notifyChangeUsername(currentUser, inputNewUsername.getText());
+
+            ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
+            nwm.notifyChangeUsername(currentUser,changeUsernameTextField.getText());
+            //changedUsernameLabel.setText("Username changed!");
+        } else {
+            System.out.println("Empty textfield new username");
+        }
+    }
+
+    private void disconnectButtonHandler(){
+        NetworkManager.getInstance().sendDisconnection(new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP));
+        //connected = false;
+    }
+
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new MainWindow().start();
+        });
+    }
+
+}
+
+
+    /*
     private final JPanel grid = new JPanel();
     private final JTextField inputNewUsername = new JTextField();
     private final JButton changeUsernameButton = new JButton("Change Username");
@@ -78,7 +172,7 @@ public class MainWindow {
     }
 }
 
-
+*/
 
 
 /*
