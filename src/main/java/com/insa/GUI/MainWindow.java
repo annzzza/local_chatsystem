@@ -1,99 +1,159 @@
 package com.insa.GUI;
 
+
 import com.insa.database.LocalDatabase;
+import com.insa.network.ConnectedUser;
 import com.insa.network.NetworkManager;
-import com.insa.network.User;
-import com.insa.utils.MyLogger;
-import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class MainWindow {
 
-    Stage window = new Stage();
-
-    GridPane grid = new GridPane();
-    Label usernameLabel = new Label("Enter your username:");
-    TextField inputUsername = new TextField();
-
-    Button enterButton = new Button("Enter");
-    Label chooseOtherUsernameLabel = new Label();
-
+    private final JFrame window = new JFrame();
+    private final JPanel grid = new JPanel();
+    private final JTextField inputNewUsername = new JTextField();
+    private final JButton changeUsernameButton = new JButton("Change Username");
+    private final JLabel changedUsernameLabel = new JLabel("");
 
     public void start() {
-        //Parent root = FXMLLoader.load(getClass().getResource("mainwindow.fxml"));
-//        FXMLLoader fxmlLoader = new FXMLLoader(MainWindow.class.getResource("mainwindow.fxml"));
-//        Scene scene = new Scene(fxmlLoader.load());
-//        stage.setTitle("Welcome !");
-//        stage.setScene(scene);
-//        stage.show();
-        window.setTitle("ODD");
-        window.show();
-        window.setTitle("Set Username");
+        window.setTitle("Chats");
+        window.setSize(400, 275);
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        grid.setLayout(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.insets = new Insets(10, 10, 10, 10);
+
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        inputNewUsername.setPreferredSize(new Dimension(100, 30));
+        grid.add(inputNewUsername, constraints);
+
+        JPanel buttonBox = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonBox.add(changeUsernameButton);
+        changeUsernameButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                changeUsernameButtonHandler();
+            }
+        });
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        grid.add(buttonBox, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        grid.add(changedUsernameLabel, constraints);
+
+        window.add(grid);
+        window.setVisible(true);
+    }
+
+    private void changeUsernameButtonHandler() {
+        // Replace with your logic for handling the button click
+        NetworkManager nwm = NetworkManager.getInstance();
+        System.out.println("Clicked changeUsername");
+
+        if (!inputNewUsername.getText().isEmpty()) {
+            // Replace with your logic for notifying the change in username
+            // ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
+            // nwm.notifyChangeUsername(currentUser, inputNewUsername.getText());
+
+            ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
+            nwm.notifyChangeUsername(currentUser,inputNewUsername.getText());
+            changedUsernameLabel.setText("Username changed!");
+            changedUsernameLabel.setText("Username changed!");
+        } else {
+            System.out.println("Empty textfield new username");
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new MainWindow().start();
+        });
+    }
+}
+
+
+
+
+/*
+import com.insa.database.LocalDatabase;
+import com.insa.network.ConnectedUser;
+import com.insa.network.NetworkManager;
+import com.insa.network.ConnectedUser;
+import com.insa.utils.MyLogger;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+
+import javafx.stage.Stage;
+
+import java.awt.*;
+
+public class SecondWindow {
+    Stage window = new Stage();
+    GridPane grid = new GridPane();
+    TextField inputNewUsername = new TextField();
+   Button changeUsernameButton = new Button("Change Username");
+   Label changedUsernameLabel = new Label("");
+
+    public void start(){
+        window.setTitle("Chats");
 
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
-        Text welcomeText = new Text("Welcome");
-        GridPane.setColumnIndex(welcomeText, 0);
-        GridPane.setRowIndex(welcomeText, 0);
-        GridPane.setColumnSpan(welcomeText, 2);
-        grid.getChildren().add(welcomeText);
 
-        GridPane.setColumnIndex(usernameLabel, 0);
-        GridPane.setRowIndex(usernameLabel, 1);
-        grid.getChildren().add(usernameLabel);
-
-        GridPane.setColumnIndex(inputUsername, 1);
-        GridPane.setRowIndex(inputUsername, 1);
-        grid.getChildren().add(inputUsername);
+        GridPane.setColumnIndex(inputNewUsername, 0);
+        GridPane.setRowIndex(inputNewUsername, 0);
+        grid.getChildren().add(inputNewUsername);
 
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
-        GridPane.setColumnIndex(buttonBox, 1);
-        GridPane.setRowIndex(buttonBox, 2);
+        GridPane.setColumnIndex(buttonBox, 0);
+        GridPane.setRowIndex(buttonBox, 1);
 
-        enterButton.setOnAction(e->enterButtonHandler());
-        buttonBox.getChildren().add(enterButton);
+        changeUsernameButton.setOnAction(e->changeUsernameButtonHandler());
+        buttonBox.getChildren().add(changeUsernameButton);
         grid.getChildren().add(buttonBox);
 
-        GridPane.setColumnIndex(chooseOtherUsernameLabel, 0);
-        GridPane.setRowIndex(chooseOtherUsernameLabel, 4);
-        grid.getChildren().add(chooseOtherUsernameLabel);
+        GridPane.setColumnIndex(changedUsernameLabel, 0);
+        GridPane.setRowIndex(changedUsernameLabel, 2);
+        grid.getChildren().add(changedUsernameLabel);
 
         Scene scene = new Scene(grid, 400, 275);
         window.setScene(scene);
 
         window.show();
-
     }
-    private void enterButtonHandler() {
-        LocalDatabase.Database.currentUser = new User(inputUsername.getText());
 
+
+    private void changeUsernameButtonHandler(){
         NetworkManager nwm = NetworkManager.getInstance();
 
-        MyLogger.getInstance().info("Begin client discovery");
-        if(nwm.discoverNetwork(inputUsername.getText())) {
+        MyLogger.getInstance().info("Clicked changeUsername");
 
-            chooseOtherUsernameLabel.setTextFill(Color.rgb(255,0,0));
-            chooseOtherUsernameLabel.setText("Username not available, please choose a new one.");
-        } else {
-            chooseOtherUsernameLabel.setText("Connected");
+        if (!inputNewUsername.getText().isEmpty()){
+            ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
+            nwm.notifyChangeUsername(currentUser,inputNewUsername.getText());
+            changedUsernameLabel.setText("Username changed!");
+        }
+        else {
+            MyLogger.getInstance().info("Empty textfield new username");
+        }
 
-            SecondWindow secondWindow = new SecondWindow();
-            secondWindow.start();
-        };
     }
 }
+*/

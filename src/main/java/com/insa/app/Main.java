@@ -3,8 +3,6 @@ package com.insa.app;
 import com.insa.GUI.NoGui;
 import com.insa.network.NetworkManager;
 import com.insa.utils.MyLogger;
-import javafx.scene.paint.Color;
-
 import java.util.*;
 
 import static java.lang.System.exit;
