@@ -2,29 +2,30 @@ package com.insa.GUI;
 
 
 import com.insa.GUI.view.ChatClass;
-import com.insa.GUI.view.ChatGUI;
+import com.insa.database.FakeDatabase;
 import com.insa.database.LocalDatabase;
 import com.insa.network.ConnectedUser;
 import com.insa.network.NetworkManager;
 import com.insa.utils.MyLogger;
 
 import javax.swing.*;
-import javax.swing.border.Border;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.List;
 
 public class MainWindow {
 
     private final JFrame window = new JFrame("Clavardages");
-    private final JMenuBar menuBar = new JMenuBar();
-
     private final JTextField changeUsernameTextField = new JTextField("New Username");
 
 
+
     public void createBorderLayoutTop(){
+
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.setBorderPainted(true);
 
         menuBar.add(new JLabel("Menu"));
 
@@ -32,7 +33,6 @@ public class MainWindow {
         disconnectMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                /////DISCONNECT FUNCTION
                 disconnectButtonHandler();
             }
         });
@@ -46,12 +46,33 @@ public class MainWindow {
             }
         });
 
-        changeUsernameTextField.addActionListener(new ActionListener() {
+        changeUsernameTextField.addMouseListener(new MouseListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                changeUsernameButtonHandler();
+            public void mouseClicked(MouseEvent e) {
+                changeUsernameTextField.setText("");
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
             }
         });
+
         menuBar.add(changeUsernameTextField);
         menuBar.add(changeUsernameButton);
 
@@ -68,20 +89,27 @@ public class MainWindow {
 
 
     public void createBorderLayoutCenter(){
-        ChatGUI gui = new ChatGUI();
 
         JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         jSplitPane.setResizeWeight(0.33);
 
         MyLogger.getInstance().info("OKOKOK");
 
-        DefaultListModel<String> chatItemList = gui.chatListBuilderCorrectVersion();
+        DefaultListModel<String> chatItemList = chatListBuilder();
 
         JList listChats = new JList(chatItemList);
-
+        listChats.setFixedCellHeight(48);
+        listChats.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                System.out.println(listChats.getSelectedValue().toString());
+                String usernameSelectedChat = listChats.getSelectedValue().toString();
+                jSplitPane.setRightComponent(chattingPanelBuilder(usernameSelectedChat));
+            }
+        });
 
         jSplitPane.setLeftComponent(listChats);
-        jSplitPane.setRightComponent(new Label("HELLO"));
+        jSplitPane.setRightComponent(new Label("Vide"));
 
         window.add(jSplitPane, BorderLayout.CENTER);
     }
@@ -114,6 +142,80 @@ public class MainWindow {
     private void disconnectButtonHandler(){
         NetworkManager.getInstance().sendDisconnection(new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP));
         System.exit(0);
+    }
+
+
+    private DefaultListModel<String> chatListBuilder(){
+        List<ConnectedUser> connectedUserList = FakeDatabase.Database.makeConnectedUserList();
+        DefaultListModel<String> chatList = new DefaultListModel<>();
+
+        MyLogger.getInstance().info("building list of chats");
+        for (ConnectedUser connectedUser : connectedUserList) {
+            ChatClass chat = new ChatClass(connectedUser.getUsername());
+            chatList.addElement(chat.toString());
+        }
+
+        return chatList;
+    }
+
+    private JPanel chattingPanelBuilder(String usernameSelectedChat){
+
+        JPanel chattingPanel = new JPanel();
+        chattingPanel.setLayout(new BorderLayout());
+
+        JPanel topPanel = new JPanel();
+        JLabel topLabel = new JLabel(usernameSelectedChat);
+        topPanel.add(topLabel, JPanel.CENTER_ALIGNMENT);
+        topPanel.setBackground(new Color(136, 171, 142));
+        chattingPanel.add(topPanel, BorderLayout.NORTH);
+
+        JMenuBar bottomMenu = new JMenuBar();
+        JTextField messageTextField = new JTextField("Type your message here:");
+        messageTextField.setPreferredSize(new Dimension(250, 40));
+        messageTextField.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                messageTextField.setText("");
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+        bottomMenu.add(messageTextField);
+        JButton sendButton = new JButton("SEND");
+        sendButton.setBackground(new Color(136, 171, 142));
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MyLogger.getInstance().info("send message button pressed");
+                //TODO: onSendButtonClicked();
+            }
+        });
+        bottomMenu.add(sendButton);
+        chattingPanel.add(bottomMenu, BorderLayout.SOUTH);
+
+
+        //todo:use DAO to retreive history of chats with corresponding user
+
+
+        return chattingPanel;
     }
 
 
