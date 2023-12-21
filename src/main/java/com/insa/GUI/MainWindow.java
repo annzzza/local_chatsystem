@@ -21,7 +21,9 @@ public class MainWindow {
     private final JTextField changeUsernameTextField = new JTextField("New Username");
 
 
-
+    /**
+     * GUI for top Menu of the application
+     */
     public void createBorderLayoutTop(){
 
         JMenuBar menuBar = new JMenuBar();
@@ -46,6 +48,7 @@ public class MainWindow {
             }
         });
 
+        //Mouse listener: clears textfield when textfield is clicked
         changeUsernameTextField.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -76,10 +79,14 @@ public class MainWindow {
         menuBar.add(changeUsernameTextField);
         menuBar.add(changeUsernameButton);
 
+        //display the menu on the top part of the border layout
         window.add(menuBar, BorderLayout.NORTH);
     }
 
 
+    /**
+     * GUI for bottom creator credit of the application
+     */
     public void createBorderLayoutBottom(){
 
         JLabel bottomLabel = new JLabel("created by R.B. & A.C.", SwingConstants.LEFT);
@@ -88,27 +95,32 @@ public class MainWindow {
     }
 
 
+    /**
+     * GUI for center page of the application
+     */
     public void createBorderLayoutCenter(){
 
+        //SplitPane: Screen is divided in two horizontally
         JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         jSplitPane.setResizeWeight(0.33);
 
-        MyLogger.getInstance().info("OKOKOK");
-
+        //Left panel displays the clickable list of connected users
         DefaultListModel<String> chatItemList = chatListBuilder();
 
         JList listChats = new JList(chatItemList);
         listChats.setFixedCellHeight(48);
+
+        //Right panel displays the chat (history+send message) with selected user from left panel
         listChats.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                System.out.println(listChats.getSelectedValue().toString());
                 String usernameSelectedChat = listChats.getSelectedValue().toString();
                 jSplitPane.setRightComponent(chattingPanelBuilder(usernameSelectedChat));
             }
         });
 
         jSplitPane.setLeftComponent(listChats);
+        //Default right panel
         jSplitPane.setRightComponent(new Label("Vide"));
 
         window.add(jSplitPane, BorderLayout.CENTER);
@@ -124,32 +136,44 @@ public class MainWindow {
     }
 
 
-
+    /**
+     * Handler for changeUsernameButton: sends changeUSername request to networkManager
+     */
     private void changeUsernameButtonHandler() {
-        // Replace with your logic for handling the button click
         NetworkManager nwm = NetworkManager.getInstance();
-        System.out.println("Clicked changeUsername");
 
         if (!changeUsernameTextField.getText().isEmpty()) {
             ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
             nwm.notifyChangeUsername(currentUser,changeUsernameTextField.getText());
             //changedUsernameLabel.setText("Username changed!");
+
+            MyLogger.getInstance().info("ChangeUsername button clicked, request transferred to network manager");
+
         } else {
-            System.out.println("Empty textfield new username");
+            MyLogger.getInstance().info("Empty textfield new username");
         }
     }
 
+    /**
+     * Handler for disconnectButton: sends disconnect request to networkManager
+     */
     private void disconnectButtonHandler(){
         NetworkManager.getInstance().sendDisconnection(new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP));
         System.exit(0);
     }
 
 
+    /**
+     * @return DefaultListModel of String to be inserted in JList on the left panel
+     */
     private DefaultListModel<String> chatListBuilder(){
+        //Retreive list of Connected Users
         List<ConnectedUser> connectedUserList = FakeDatabase.Database.makeConnectedUserList();
         DefaultListModel<String> chatList = new DefaultListModel<>();
 
         MyLogger.getInstance().info("building list of chats");
+
+        //for each Connected User, adds their name to the DefaultListModel
         for (ConnectedUser connectedUser : connectedUserList) {
             ChatClass chat = new ChatClass(connectedUser.getUsername());
             chatList.addElement(chat.toString());
@@ -158,17 +182,23 @@ public class MainWindow {
         return chatList;
     }
 
+    /**
+     * @param usernameSelectedChat username of the connected user that is selected on left panel
+     * @return corresponding right panel GUI
+     */
     private JPanel chattingPanelBuilder(String usernameSelectedChat){
 
         JPanel chattingPanel = new JPanel();
         chattingPanel.setLayout(new BorderLayout());
 
+        //top of Right panel: name of the selected user
         JPanel topPanel = new JPanel();
         JLabel topLabel = new JLabel(usernameSelectedChat);
         topPanel.add(topLabel, JPanel.CENTER_ALIGNMENT);
         topPanel.setBackground(new Color(136, 171, 142));
         chattingPanel.add(topPanel, BorderLayout.NORTH);
 
+        //bottom of Right panel: input message and send message button
         JMenuBar bottomMenu = new JMenuBar();
         JTextField messageTextField = new JTextField("Type your message here:");
         messageTextField.setPreferredSize(new Dimension(250, 40));
@@ -213,6 +243,9 @@ public class MainWindow {
 
 
         //todo:use DAO to retreive history of chats with corresponding user
+
+
+        //center of Right Panel: retreive history of messages with selected user.
 
 
         return chattingPanel;
