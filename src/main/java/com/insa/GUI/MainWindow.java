@@ -1,6 +1,5 @@
 package com.insa.GUI;
 
-
 import com.insa.GUI.view.ChatClass;
 import com.insa.database.FakeDatabase;
 import com.insa.database.LocalDatabase;
@@ -9,16 +8,21 @@ import com.insa.network.NetworkManager;
 import com.insa.utils.MyLogger;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainWindow {
 
     private final JFrame window = new JFrame("Clavardages");
     private final JTextField changeUsernameTextField = new JTextField("New Username");
+
+    private final Color whiteBackground = new Color(242, 241, 235);
 
 
     /**
@@ -41,10 +45,12 @@ public class MainWindow {
 
         menuBar.add(disconnectMenuItem);
         JButton changeUsernameButton = new JButton("Change Username");
+        changeUsernameButton.setBackground(whiteBackground);
         changeUsernameButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 changeUsernameButtonHandler();
+                changeUsernameTextField.setText("Username successfully changed !");
             }
         });
 
@@ -56,24 +62,16 @@ public class MainWindow {
             }
 
             @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
+            public void mousePressed(MouseEvent e) {}
 
             @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
+            public void mouseReleased(MouseEvent e) {}
 
             @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
+            public void mouseEntered(MouseEvent e) {}
 
             @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
+            public void mouseExited(MouseEvent e) {}
         });
 
         menuBar.add(changeUsernameTextField);
@@ -88,8 +86,8 @@ public class MainWindow {
      * GUI for bottom creator credit of the application
      */
     public void createBorderLayoutBottom(){
-
         JLabel bottomLabel = new JLabel("created by R.B. & A.C.", SwingConstants.LEFT);
+        bottomLabel.setBackground(new Color(136, 171, 142));
 
         window.add(bottomLabel, BorderLayout.SOUTH);
     }
@@ -98,7 +96,7 @@ public class MainWindow {
     /**
      * GUI for center page of the application
      */
-    public void createBorderLayoutCenter(){
+    public void createBorderLayoutCenter() {
 
         //SplitPane: Screen is divided in two horizontally
         JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -109,6 +107,7 @@ public class MainWindow {
 
         JList listChats = new JList(chatItemList);
         listChats.setFixedCellHeight(48);
+        listChats.setBackground(whiteBackground);
 
         //Right panel displays the chat (history+send message) with selected user from left panel
         listChats.addListSelectionListener(new ListSelectionListener() {
@@ -119,9 +118,12 @@ public class MainWindow {
             }
         });
 
-        jSplitPane.setLeftComponent(listChats);
+        jSplitPane.setLeftComponent(new JScrollPane(listChats));
         //Default right panel
-        jSplitPane.setRightComponent(new Label("Vide"));
+        Label defaultRightPanel = new Label("Select a user to chat with!");
+        defaultRightPanel.setBackground(whiteBackground);
+
+        jSplitPane.setRightComponent(defaultRightPanel);
 
         window.add(jSplitPane, BorderLayout.CENTER);
     }
@@ -171,6 +173,7 @@ public class MainWindow {
         List<ConnectedUser> connectedUserList = FakeDatabase.Database.makeConnectedUserList();
         DefaultListModel<String> chatList = new DefaultListModel<>();
 
+
         MyLogger.getInstance().info("building list of chats");
 
         //for each Connected User, adds their name to the DefaultListModel
@@ -189,7 +192,7 @@ public class MainWindow {
     private JPanel chattingPanelBuilder(String usernameSelectedChat){
 
         JPanel chattingPanel = new JPanel();
-        chattingPanel.setLayout(new BorderLayout());
+        chattingPanel.setLayout(new BorderLayout(10, 10));
 
         //top of Right panel: name of the selected user
         JPanel topPanel = new JPanel();
@@ -209,24 +212,16 @@ public class MainWindow {
             }
 
             @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
+            public void mousePressed(MouseEvent e) {}
 
             @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
+            public void mouseReleased(MouseEvent e) {}
 
             @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
+            public void mouseEntered(MouseEvent e) {}
 
             @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
+            public void mouseExited(MouseEvent e) {}
         });
         bottomMenu.add(messageTextField);
         JButton sendButton = new JButton("SEND");
@@ -247,6 +242,45 @@ public class MainWindow {
 
         //center of Right Panel: retreive history of messages with selected user.
 
+        JPanel historyPanel = new JPanel();
+        GridLayout gridLayout = new GridLayout(0, 2, 10, 10);
+        BorderLayout bdl = new BorderLayout(10, 10);
+        historyPanel.setLayout(bdl);
+
+
+        //TESTS
+        ArrayList<String> testListChats = new ArrayList<>();
+        testListChats.add("Salut cv? tfq?");
+        testListChats.add("Oue et toi? je f r toi");
+        testListChats.add("je v mangé");
+        testListChats.add("ah oue moi j deha mangé mdr");
+        testListChats.add("*deja");
+
+        int counter = 0;
+
+        JPanel receivedMessage = new JPanel();
+        JPanel sentMessage = new JPanel();
+        receivedMessage.setLayout(new BoxLayout(receivedMessage, BoxLayout.Y_AXIS));
+        sentMessage.setLayout(new BoxLayout(sentMessage, BoxLayout.Y_AXIS));
+
+
+        for (String i: testListChats){
+            counter++;
+            if (counter % 2 == 0) {
+                receivedMessage.add(new JLabel(i));
+                sentMessage.add(new JLabel("\n"));
+            } else {
+                sentMessage.add(new JLabel(i));
+                receivedMessage.add(new JLabel("\n"));
+            }
+        }
+
+        historyPanel.add(receivedMessage, BorderLayout.EAST);
+        historyPanel.add(sentMessage, BorderLayout.WEST);
+
+
+        historyPanel.setBackground(whiteBackground);
+        chattingPanel.add(historyPanel, BorderLayout.CENTER);
 
         return chattingPanel;
     }

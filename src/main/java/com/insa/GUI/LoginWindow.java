@@ -24,11 +24,14 @@ public class LoginWindow {
         window.setSize(400, 275);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        panel.setBackground(new Color(242, 241, 235));
+
         panel.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
 
         JLabel welcomeText = new JLabel("Welcome");
+        welcomeText.setBackground(new Color(242, 241, 235));
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.gridwidth = 2;
@@ -53,6 +56,7 @@ public class LoginWindow {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(enterButton);
+        enterButton.setBackground(new Color(175, 200, 173));
         enterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -86,6 +90,7 @@ public class LoginWindow {
             chooseOtherUsernameLabel.setForeground(Color.RED);
             chooseOtherUsernameLabel.setText("Username not available, please choose a new one.");
         } else {
+            chooseOtherUsernameLabel.setForeground(Color.GREEN);
             chooseOtherUsernameLabel.setText("Connected");
 
             enterButton.setVisible(false);
