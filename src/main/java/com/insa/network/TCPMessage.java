@@ -2,11 +2,12 @@ package com.insa.network;
 
 import java.sql.Timestamp;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * This class represents a TCP message
  */
-public record TCPMessage(String content, User sender, User receiver, Timestamp date) {
+public record TCPMessage(UUID uuid, String content, ConnectedUser sender, User receiver, Timestamp date) {
     /**
      * Method overriding equals to compare two TCPMessage objects
      *
