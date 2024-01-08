@@ -4,16 +4,15 @@ import com.insa.GUI.view.ChatClass;
 import com.insa.database.FakeDatabase;
 import com.insa.database.LocalDatabase;
 import com.insa.network.ConnectedUser;
+import com.insa.network.Message;
 import com.insa.network.NetworkManager;
 import com.insa.utils.MyLogger;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,6 +117,8 @@ public class MainWindow {
             }
         });
 
+        //chatItemList.addElement("jonan");
+
         jSplitPane.setLeftComponent(new JScrollPane(listChats));
         //Default right panel
         Label defaultRightPanel = new Label("Select a user to chat with!");
@@ -129,6 +130,8 @@ public class MainWindow {
     }
 
     public void start(){
+        //ImageIcon img = new ImageIcon("src/main/java/com/insa/GUI/iconChatSystem.png");
+        //window.setIconImage(img.getImage());
         createBorderLayoutTop();
         createBorderLayoutCenter();
         createBorderLayoutBottom();
@@ -223,14 +226,14 @@ public class MainWindow {
             @Override
             public void mouseExited(MouseEvent e) {}
         });
+
         bottomMenu.add(messageTextField);
         JButton sendButton = new JButton("SEND");
         sendButton.setBackground(new Color(136, 171, 142));
         sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                MyLogger.getInstance().info("send message button pressed");
-                //TODO: onSendButtonClicked();
+                onSendButtonClicked(usernameSelectedChat);
             }
         });
         bottomMenu.add(sendButton);
@@ -238,9 +241,7 @@ public class MainWindow {
 
 
         //todo:use DAO to retreive history of chats with corresponding user
-
-
-        //center of Right Panel: retreive history of messages with selected user.
+        //something like: ArrayList<Message> historyMessagesList = LocalDatabase.Database.getHistoryMessages(usernameSelectedChat);
 
         JPanel historyPanel = new JPanel();
         GridLayout gridLayout = new GridLayout(0, 2, 10, 10);
@@ -249,29 +250,28 @@ public class MainWindow {
 
 
         //TESTS
-        ArrayList<String> testListChats = new ArrayList<>();
-        testListChats.add("Salut cv? tfq?");
-        testListChats.add("Oue et toi? je f r toi");
-        testListChats.add("je v mangé");
-        testListChats.add("ah oue moi j deha mangé mdr");
-        testListChats.add("*deja");
-
-        int counter = 0;
+        ArrayList<Message> testListChatsMessage = FakeDatabase.Database.getHistoryMessages();
 
         JPanel receivedMessage = new JPanel();
         JPanel sentMessage = new JPanel();
+        receivedMessage.setBackground(whiteBackground);
+        sentMessage.setBackground(whiteBackground);
         receivedMessage.setLayout(new BoxLayout(receivedMessage, BoxLayout.Y_AXIS));
         sentMessage.setLayout(new BoxLayout(sentMessage, BoxLayout.Y_AXIS));
 
+        for (int j=0; j<4; j++){
+            for (Message i : testListChatsMessage) {
+                //test if sender is localhost or not -> saved UUID entry of ones's self in LocalDatabase?
+                if (i.getSender().getUsername().equals("anna")) {
+                    receivedMessage.add(new JLabel("<html> " + i.getContent() + "<br/>" + i.getDate() + "</html>"));
+                    sentMessage.add(new JLabel(("<html><br/></html>")));
+                } else {
+                    sentMessage.add(new JLabel("<html> " + i.getContent() + "<br/>" + i.getDate() + "</html>"));
+                    receivedMessage.add(new JLabel(("<html><br/></html>")));
+                }
+                receivedMessage.add(new JLabel(("<html><br/><br/></html>")));
+                sentMessage.add(new JLabel(("<html><br/><br/></html>")));
 
-        for (String i: testListChats){
-            counter++;
-            if (counter % 2 == 0) {
-                receivedMessage.add(new JLabel(i));
-                sentMessage.add(new JLabel("\n"));
-            } else {
-                sentMessage.add(new JLabel(i));
-                receivedMessage.add(new JLabel("\n"));
             }
         }
 
@@ -280,9 +280,18 @@ public class MainWindow {
 
 
         historyPanel.setBackground(whiteBackground);
-        chattingPanel.add(historyPanel, BorderLayout.CENTER);
+
+        JScrollPane historyScrollPane = new JScrollPane(historyPanel);
+        chattingPanel.add(historyScrollPane, BorderLayout.CENTER);
 
         return chattingPanel;
+    }
+
+    public void onSendButtonClicked(String usernameSelectedChat){
+        MyLogger.getInstance().info("Send message to " + usernameSelectedChat);
+        //send TCP message to selected username
+        //update history of messages
+        //update GUI with new message sent
     }
 
 
