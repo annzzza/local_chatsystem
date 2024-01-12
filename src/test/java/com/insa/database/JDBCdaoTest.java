@@ -98,8 +98,9 @@ class JDBCdaoTest {
         if (con != null){
             //create two messages from user1
             TCPMessage msg1 = new TCPMessage(UUID.randomUUID(), "ceci est un message", user1, user2, new Timestamp(24859L));
-            TCPMessage msg2 = new TCPMessage(UUID.randomUUID(), "ceci est un message 2", user1, user2, new Timestamp(24859L));
-            TCPMessage msg3 = new TCPMessage(UUID.randomUUID(), "ceci n'est pas un message voulu", user2, user1, new Timestamp(24859L));
+            TCPMessage msg2 = new TCPMessage(UUID.randomUUID(), "ceci est un message 2", user2, user1, new Timestamp(24859L));
+            ConnectedUser espion = new ConnectedUser("espion", InetAddress.getByName("192.168.55.55"));
+            TCPMessage msg3 = new TCPMessage(UUID.randomUUID(), "ceci n'est pas un message voulu", espion, user2, new Timestamp(24859L));
 
             //add messages to history
             jdao.addToHistoryDB(msg1);

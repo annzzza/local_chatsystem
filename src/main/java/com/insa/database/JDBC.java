@@ -42,7 +42,8 @@ public class JDBC {
                 + "(uuid CHAR(50) PRIMARY KEY NOT NULL, "
                 + "content CHAR(280) NOT NULL, "
                 + "date DATETIME, "
-                + "sender_ip CHAR(15) NOT NULL);";
+                + "sender_ip CHAR(15) NOT NULL,"
+                + "receiver_ip CHAR(15) NOT NULL);";
 
         stmt.executeUpdate(tableConnectedUsersSQL);
         stmt.executeUpdate(tableHistory);

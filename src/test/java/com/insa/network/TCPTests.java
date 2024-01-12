@@ -20,9 +20,9 @@ public class TCPTests {
     @Test
     void testTCPClient() throws IOException, InterruptedException {
         // Create test messages
-        TCPMessage testMessage = new TCPMessage(UUID.randomUUID(), "Hello", new ConnectedUser("sender", InetAddress.getByName("192.168.0.1")), new User("receiver"), new Timestamp(new Date().getTime()));
-        TCPMessage testMessage2 = new TCPMessage(UUID.randomUUID(),"Hello \n new line", new ConnectedUser("sender2", InetAddress.getByName("192.168.0.2")), new User("receiver2"), new Timestamp(new Date().getTime()));
-        TCPMessage testMessage3 = new TCPMessage(UUID.randomUUID(),"Hello \n new line\t",  new ConnectedUser("sender2", InetAddress.getByName("192.168.0.2")), new User("receiver2"), new Timestamp(new Date().getTime()));
+        TCPMessage testMessage = new TCPMessage(UUID.randomUUID(), "Hello", new ConnectedUser("sender", InetAddress.getByName("192.168.0.1")), new ConnectedUser("receiver", InetAddress.getByName("192.168.0.254")), new Timestamp(new Date().getTime()));
+        TCPMessage testMessage2 = new TCPMessage(UUID.randomUUID(),"Hello \n new line", new ConnectedUser("sender2", InetAddress.getByName("192.168.0.2")), new ConnectedUser("receiver2", InetAddress.getByName("192.168.0.253")), new Timestamp(new Date().getTime()));
+        TCPMessage testMessage3 = new TCPMessage(UUID.randomUUID(),"Hello \n new line\t",  new ConnectedUser("sender2", InetAddress.getByName("192.168.0.2")), new ConnectedUser("receiver2", InetAddress.getByName("192.168.0.253")), new Timestamp(new Date().getTime()));
         List<TCPMessage> testMessages = Arrays.asList(testMessage, testMessage2, testMessage3);
 
         // Create TCP Server
