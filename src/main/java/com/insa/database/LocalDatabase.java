@@ -1,5 +1,5 @@
 package com.insa.database;
-import com.insa.network.ConnectedUser;
+import com.insa.network.connectedusers.ConnectedUser;
 import com.insa.network.User;
 
 import java.net.InetAddress;
@@ -14,7 +14,5 @@ public class LocalDatabase {
         public static User currentUser;
 
         public static InetAddress currentIP;
-
-        public static List<ConnectedUser> connectedUserList = new ArrayList<>();
     }
 }
