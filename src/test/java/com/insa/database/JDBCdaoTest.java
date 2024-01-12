@@ -3,6 +3,7 @@ package com.insa.database;
 import com.insa.network.ConnectedUser;
 import com.insa.network.TCPMessage;
 import com.insa.network.User;
+import com.insa.utils.MyLogger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,6 +55,8 @@ class JDBCdaoTest {
         String uuidMSG = rs.getString("uuid");
         rs.close();
         ps.close();
+
+        MyLogger.getInstance().info("[TEST] - Added message to DB:\n" + msg.toString());
 
         //Delete added message from DB
         String delQuery = "DELETE FROM message_history WHERE uuid=?";
@@ -136,6 +139,9 @@ class JDBCdaoTest {
                 assertTrue(message.uuid().equals(msg1.uuid()) || message.uuid().equals(msg2.uuid()));
                 assertTrue(message.content().equals(msg1.content()) || message.content().equals(msg2.content()));
                 assertTrue(message.sender().equals(msg1.sender()) || message.sender().equals(msg2.sender()));
+
+                MyLogger.getInstance().info("[TEST] - Message from history with " + user1.getUsername()  + ":\n" + message.content());
+
             }
 
 
@@ -186,6 +192,9 @@ class JDBCdaoTest {
         assertEquals(2, conUsers.size());
         for (ConnectedUser us : conUsers){
             assertTrue(us.equals(user1) || us.equals(user2));
+
+            MyLogger.getInstance().info("[TEST] - Connected user in DB:\n" + us.toString());
+
         }
 
         //delete users from connected user table
