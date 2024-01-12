@@ -5,6 +5,7 @@ import com.insa.network.TCPMessage;
 import com.insa.network.User;
 import com.insa.utils.MyLogger;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,10 +22,28 @@ class JDBCdaoTest {
 
     JDBC jdbc = new JDBC();
     JDBCdao jdao = new JDBCdao();
-    Connection con;
+    static Connection con;
 
     ConnectedUser user1;
     ConnectedUser user2;
+
+    public static boolean doesTableExist(Connection connection, String tableName) throws SQLException {
+        String query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, tableName);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next(); // If the result set has at least one row, the table exists
+            }
+        }
+    }
+
+    @BeforeAll
+    static void setUpPrimary() throws SQLException {
+        con = JDBC.getDBConnection();
+        if (!doesTableExist(con, "connected_users") && !(doesTableExist(con, "message_history"))){
+            JDBC.createTables(con);
+        }
+    }
 
     @BeforeEach
     void setUp() throws SQLException, UnknownHostException {
