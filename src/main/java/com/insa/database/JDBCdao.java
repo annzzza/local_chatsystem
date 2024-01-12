@@ -22,7 +22,7 @@ public class JDBCdao {
         ps.setString(1, msg.uuid().toString());
         ps.setString(2, msg.content());
         ps.setDate(3, new Date(msg.date().getTime()));
-        ps.setString(4, msg.sender().getIP().toString());
+        ps.setString(4, msg.sender().getIP().toString().substring(1));
         int n = ps.executeUpdate();
     }
 
@@ -40,7 +40,7 @@ public class JDBCdao {
         PreparedStatement ps = con.prepareStatement(query);
         ps.setString(1, user.getUuid().toString());
         ps.setString(2, user.getUsername());
-        ps.setString(3, user.getIP().toString());
+        ps.setString(3, user.getIP().toString().substring(1));
         int n = ps.executeUpdate();
     }
 
@@ -53,14 +53,14 @@ public class JDBCdao {
 
     public ArrayList<TCPMessage> getHistoryWith(ConnectedUser user) throws SQLException, UnknownHostException {
         ArrayList<TCPMessage> res = new ArrayList<>();
-        String query = "SELECT * from message_history "
-                + "WHERE sender_ip = " + user.getIP().toString() + ";";
+        String query = "SELECT * from message_history WHERE sender_ip = ?";
         PreparedStatement ps = con.prepareStatement(query);
+        ps.setString(1, user.getIP().toString().substring(1));
         ResultSet rs = ps.executeQuery();
         while (rs.next()){
             User blankFiller = new User("blank");
-            ConnectedUser cu = new ConnectedUser("user", InetAddress.getByName(rs.getString(4)));
-            TCPMessage msg = new TCPMessage(UUID.fromString(rs.getString(1)), rs.getString(2), cu, blankFiller,new Timestamp(rs.getDate(3 ).getTime()));
+            //ConnectedUser cu = new ConnectedUser("user", InetAddress.getByName(rs.getString(4)));
+            TCPMessage msg = new TCPMessage(UUID.fromString(rs.getString(1)), rs.getString(2), user, blankFiller,new Timestamp(rs.getDate(3 ).getTime()));
             res.add(msg);
         }
         return res;
