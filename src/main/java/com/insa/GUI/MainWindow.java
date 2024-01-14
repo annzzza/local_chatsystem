@@ -1,11 +1,13 @@
 package com.insa.GUI;
 
 import com.insa.GUI.view.ChatClass;
+import com.insa.GUI.view.ContactView;
 import com.insa.database.FakeDatabase;
 import com.insa.database.LocalDatabase;
-import com.insa.network.ConnectedUser;
-import com.insa.network.Message;
-import com.insa.network.NetworkManager;
+import com.insa.network.*;
+import com.insa.network.connectedusers.ConnectedUser;
+import com.insa.network.connectedusers.ConnectedUserList;
+import com.insa.utils.Constants;
 import com.insa.utils.MyLogger;
 
 import javax.swing.*;
@@ -13,8 +15,12 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 
 public class MainWindow {
 
@@ -23,11 +29,13 @@ public class MainWindow {
 
     private final Color whiteBackground = new Color(242, 241, 235);
 
+    private TCPServer tcpServer;
+
 
     /**
      * GUI for top Menu of the application
      */
-    public void createBorderLayoutTop(){
+    public void createBorderLayoutTop() {
 
         JMenuBar menuBar = new JMenuBar();
         menuBar.setBorderPainted(true);
@@ -61,16 +69,20 @@ public class MainWindow {
             }
 
             @Override
-            public void mousePressed(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {
+            }
 
             @Override
-            public void mouseReleased(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {
+            }
 
             @Override
-            public void mouseEntered(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {
+            }
 
             @Override
-            public void mouseExited(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {
+            }
         });
 
         menuBar.add(changeUsernameTextField);
@@ -84,7 +96,7 @@ public class MainWindow {
     /**
      * GUI for bottom creator credit of the application
      */
-    public void createBorderLayoutBottom(){
+    public void createBorderLayoutBottom() {
         JLabel bottomLabel = new JLabel("created by R.B. & A.C.", SwingConstants.LEFT);
         bottomLabel.setBackground(new Color(136, 171, 142));
 
@@ -104,7 +116,9 @@ public class MainWindow {
         //Left panel displays the clickable list of connected users
         DefaultListModel<String> chatItemList = chatListBuilder();
 
-        JList listChats = new JList(chatItemList);
+        ContactView contactView = ContactView.getInstance();
+        ContactView.initialize();
+        JList listChats = new JList(contactView);
         listChats.setFixedCellHeight(48);
         listChats.setBackground(whiteBackground);
 
@@ -129,7 +143,7 @@ public class MainWindow {
         window.add(jSplitPane, BorderLayout.CENTER);
     }
 
-    public void start(){
+    public void start() {
         //ImageIcon img = new ImageIcon("src/main/java/com/insa/GUI/iconChatSystem.png");
         //window.setIconImage(img.getImage());
         createBorderLayoutTop();
@@ -138,6 +152,32 @@ public class MainWindow {
 
         window.setSize(800, 600);
         window.setVisible(true);
+
+        window.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                NetworkManager.getInstance().sendDisconnection(new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP));
+                System.exit(0);
+            }
+        });
+
+        // Start TCP server
+        try {
+            MyLogger.getInstance().info("Starting TCP server on port " + Constants.TCP_SERVER_PORT + "...");
+            tcpServer = new TCPServer(Constants.TCP_SERVER_PORT);
+            tcpServer.start();
+        } catch (Exception e) {
+            MyLogger.getInstance().log("Error while starting TCP server: " + e.getMessage(), Level.SEVERE);
+            System.err.println("Error while starting TCP server: " + e.getMessage());
+            System.exit(1);
+        }
+
+        // Add observer to TCP server
+        tcpServer.addObserver((message) -> {
+            MyLogger.getInstance().info("Received message: " + message);
+        });
+
     }
 
 
@@ -149,7 +189,7 @@ public class MainWindow {
 
         if (!changeUsernameTextField.getText().isEmpty()) {
             ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
-            nwm.notifyChangeUsername(currentUser,changeUsernameTextField.getText());
+            nwm.notifyChangeUsername(currentUser, changeUsernameTextField.getText());
             //changedUsernameLabel.setText("Username changed!");
 
             MyLogger.getInstance().info("ChangeUsername button clicked, request transferred to network manager");
@@ -162,7 +202,7 @@ public class MainWindow {
     /**
      * Handler for disconnectButton: sends disconnect request to networkManager
      */
-    private void disconnectButtonHandler(){
+    private void disconnectButtonHandler() {
         NetworkManager.getInstance().sendDisconnection(new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP));
         System.exit(0);
     }
@@ -171,9 +211,11 @@ public class MainWindow {
     /**
      * @return DefaultListModel of String to be inserted in JList on the left panel
      */
-    private DefaultListModel<String> chatListBuilder(){
+    private DefaultListModel<String> chatListBuilder() {
         //Retreive list of Connected Users
-        List<ConnectedUser> connectedUserList = FakeDatabase.Database.makeConnectedUserList();
+//        List<ConnectedUser> connectedUserList = FakeDatabase.Database.makeConnectedUserList();
+//        List<ConnectedUser> connectedUserList = LocalDatabase.Database.connectedUserList;
+        ConnectedUserList connectedUserList = ConnectedUserList.getInstance();
         DefaultListModel<String> chatList = new DefaultListModel<>();
 
 
@@ -192,7 +234,7 @@ public class MainWindow {
      * @param usernameSelectedChat username of the connected user that is selected on left panel
      * @return corresponding right panel GUI
      */
-    private JPanel chattingPanelBuilder(String usernameSelectedChat){
+    private JPanel chattingPanelBuilder(String usernameSelectedChat) {
 
         JPanel chattingPanel = new JPanel();
         chattingPanel.setLayout(new BorderLayout(10, 10));
@@ -215,16 +257,20 @@ public class MainWindow {
             }
 
             @Override
-            public void mousePressed(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {
+            }
 
             @Override
-            public void mouseReleased(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {
+            }
 
             @Override
-            public void mouseEntered(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {
+            }
 
             @Override
-            public void mouseExited(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {
+            }
         });
 
         bottomMenu.add(messageTextField);
@@ -259,7 +305,7 @@ public class MainWindow {
         receivedMessage.setLayout(new BoxLayout(receivedMessage, BoxLayout.Y_AXIS));
         sentMessage.setLayout(new BoxLayout(sentMessage, BoxLayout.Y_AXIS));
 
-        for (int j=0; j<4; j++){
+        for (int j = 0; j < 4; j++) {
             for (Message i : testListChatsMessage) {
                 //test if sender is localhost or not -> saved UUID entry of ones's self in LocalDatabase?
                 if (i.getSender().getUsername().equals("anna")) {
@@ -287,9 +333,40 @@ public class MainWindow {
         return chattingPanel;
     }
 
-    public void onSendButtonClicked(String usernameSelectedChat){
+    public void onSendButtonClicked(String usernameSelectedChat) {
         MyLogger.getInstance().info("Send message to " + usernameSelectedChat);
+
+        // Get connecteduser of selected username
+//        List<ConnectedUser> connectedUserList = FakeDatabase.Database.makeConnectedUserList();
+//        ConnectedUser connectedUserSelected = connectedUserList.stream()
+//                .filter(connectedUser -> connectedUser.getUsername().equals(usernameSelectedChat))
+//                .findFirst()
+//                .orElse(null);
+
+        ConnectedUser connectedUserSelected = ConnectedUserList.getInstance().getConnectedUser(usernameSelectedChat);
+
         //send TCP message to selected username
+        TCPClient tcpClient = new TCPClient();
+
+        if(connectedUserSelected == null) {
+            MyLogger.getInstance().info("No connected user found for username " + usernameSelectedChat);
+            return;
+        }
+
+        try {
+            MyLogger.getInstance().info("Starting TCP client to " + connectedUserSelected.getIP().toString() + ":" + Constants.TCP_SERVER_PORT);
+            String ip = connectedUserSelected.getIP().toString().substring(1);
+            tcpClient.startConnection(ip, Constants.TCP_SERVER_PORT);
+        } catch (IOException e) {
+            MyLogger.getInstance().log("Error while starting TCP client: " + e.getMessage(), Level.SEVERE);
+            e.printStackTrace();
+            return;
+        }
+
+        // Make message
+
+        tcpClient.sendMessage(new TCPMessage("Hello", new User("sender"), new User("receiver"), new Timestamp(new Date().getTime())));
+
         //update history of messages
         //update GUI with new message sent
     }
@@ -309,9 +386,9 @@ public class MainWindow {
 
 /*
 import com.insa.database.LocalDatabase;
-import com.insa.network.ConnectedUser;
+import com.insa.network.connectedusers.ConnectedUser;
 import com.insa.network.NetworkManager;
-import com.insa.network.ConnectedUser;
+import com.insa.network.connectedusers.ConnectedUser;
 import com.insa.utils.MyLogger;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

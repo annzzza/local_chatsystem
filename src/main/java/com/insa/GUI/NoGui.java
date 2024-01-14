@@ -1,11 +1,10 @@
 package com.insa.GUI;
 
 import com.insa.database.LocalDatabase;
-import com.insa.network.ConnectedUser;
+import com.insa.network.connectedusers.ConnectedUser;
 import com.insa.network.NetworkManager;
-import com.insa.network.UDPClient;
 import com.insa.network.User;
-import com.insa.utils.MyLogger;
+import com.insa.network.connectedusers.ConnectedUserList;
 
 import java.util.Scanner;
 
@@ -121,7 +120,7 @@ public class NoGui {
 
     public void showConnectedUserOption() {
         System.out.println("Display connected users:");
-        for (ConnectedUser u : LocalDatabase.Database.connectedUserList) {
+        for (ConnectedUser u : ConnectedUserList.getInstance()) {
             System.out.println("\t" + u.getUsername());
         }
         System.out.println();

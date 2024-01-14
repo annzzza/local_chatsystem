@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 import com.insa.utils.MyLogger;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.Socket;
 
 /**
@@ -18,6 +19,7 @@ public class TCPClient {
      * Starts a connection with a server
      **/
     public void startConnection(String ip, int port) throws IOException {
+        MyLogger.getInstance().info("Starting connection with server: " + ip + ":" + port);
         clientSocket = new Socket(ip, port);
         out = new PrintWriter(clientSocket.getOutputStream(), true);
     }
