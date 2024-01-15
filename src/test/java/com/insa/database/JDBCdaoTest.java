@@ -62,21 +62,25 @@ class JDBCdaoTest {
         TCPMessage msg = new TCPMessage(UUID.randomUUID(), "ceci est un message", user1, user2, new Timestamp(24859L));
         //Add it to the History table
         jdao.addToHistoryDB(msg);
+        MyLogger.getInstance().info("[TEST] - Message to add in DB : " + msg.content() + " from: " + msg.sender().getUsername() + " to: " + msg.receiver().getUsername());
+
+
         //Check that it has been successfully added
         String query = "SELECT * FROM message_history WHERE uuid=?";
         PreparedStatement ps = con.prepareStatement(query);
         ps.setString(1, msg.uuid().toString());
         ResultSet rs = ps.executeQuery();
         assertTrue(rs.next());
+
         assertEquals(msg.uuid().toString(), rs.getString("uuid"));
         assertEquals(msg.content(), rs.getString("content"));
         assertEquals(msg.date(), rs.getTimestamp("date"));
         assertEquals(msg.sender().getUsername(), rs.getString("sender_username"));
         String uuidMSG = rs.getString("uuid");
+
+        MyLogger.getInstance().info("[TEST] - Added message to DB: " + rs.getString("content") + " from: " + rs.getString("sender_username") + " to: " + rs.getString("receiver_username"));
         rs.close();
         ps.close();
-
-        MyLogger.getInstance().info("[TEST] - Added message to DB:\n" + msg);
 
         //Delete added message from DB
         String delQuery = "DELETE FROM message_history WHERE uuid=?";
@@ -109,6 +113,9 @@ class JDBCdaoTest {
             //add user to connectedUser table
             jdao.addToConnectedUserDB(user1);
 
+            MyLogger.getInstance().info("[TEST] - Connected user to add in DB: " + user1.getUsername());
+
+
             //check that user has been successfully added
             String query = "SELECT * FROM connected_users WHERE uuid=?";
             PreparedStatement ps = con.prepareStatement(query);
@@ -119,7 +126,10 @@ class JDBCdaoTest {
             assertEquals(user1.getUsername(), rs.getString("username"));
             assertEquals(user1.getIP().toString().substring(1), rs.getString("ip"));
             String uuidUser1 = rs.getString("uuid");
+
+            MyLogger.getInstance().info("[TEST] - Connected user added to DB: " + rs.getString("username"));
             rs.close();
+
 
             //delete added user from DB
             String delQuery = "DELETE FROM connected_users WHERE uuid=?";
@@ -131,10 +141,12 @@ class JDBCdaoTest {
     }
 
     @Test
-    void deleteFromConnectedUSerDB() throws SQLException {
+    void deleteFromConnectedUserDB() throws SQLException {
         if (con!= null) {
             //add user to connectedUser table
             jdao.addToConnectedUserDB(user1);
+
+            MyLogger.getInstance().info("[TEST] - Connected user to add in DB: " + user1.getUsername());
 
             //check that user has been successfully added
             String query = "SELECT * FROM connected_users WHERE uuid=?";
@@ -156,6 +168,8 @@ class JDBCdaoTest {
             ps2.setString(1, user1.getUuid().toString());
             ResultSet rs2 = ps2.executeQuery();
             assertFalse(rs2.next());
+
+            MyLogger.getInstance().info("[TEST] - Deleted connected user from DB:" + user1.getUsername());
             rs2.close();
         }
 
@@ -183,6 +197,9 @@ class JDBCdaoTest {
             String newUsername = "new";
             jdao.updateConnectedUserDB(user1, newUsername);
 
+            MyLogger.getInstance().info("[TEST] - Connected user " + user1.getUsername() + " has new username:" + newUsername);
+
+
             //check that user has been updated with correct new username
             String query2 = "SELECT * FROM main.connected_users WHERE uuid=?";
             PreparedStatement ps2 = con.prepareStatement(query2);
@@ -190,6 +207,8 @@ class JDBCdaoTest {
             ResultSet rs2 = ps2.executeQuery();
             assertTrue(rs2.next());
             assertEquals(newUsername, rs2.getString("username"));
+
+            MyLogger.getInstance().info("[TEST] - Updated connected user " + user1.getUsername() + " in DB with new username:" + rs2.getString("username"));
             rs2.close();
 
             //delete added user from DB
@@ -198,6 +217,66 @@ class JDBCdaoTest {
             psDel.setString(1, uuidUser1);
             psDel.executeUpdate();
             psDel.close();
+        }
+    }
+
+    @Test
+    void updateHistoryDB() throws SQLException {
+        if (con != null){
+            //create two messages from user1
+            TCPMessage msg1 = new TCPMessage(UUID.randomUUID(), "ceci est un message", user1, user2, new Timestamp(24859L));
+            TCPMessage msg2 = new TCPMessage(UUID.randomUUID(), "ceci est un message 2", user2, user1, new Timestamp(24859L));
+            TCPMessage msg3 = new TCPMessage(UUID.randomUUID(), "ceci est un message 3", user1, user2, new Timestamp(24859L));
+
+            //add messages to history
+            jdao.addToHistoryDB(msg1);
+            jdao.addToHistoryDB(msg2);
+            jdao.addToHistoryDB(msg3);
+
+            //update a username
+            String newUsername = "NOUVEAU";
+            jdao.updateHistoryDB(user1, newUsername);
+
+            MyLogger.getInstance().info("[TEST] - User " + user1.getUsername() + " has new username:\n" + newUsername);
+
+            //check that history db has been updated
+            String query1 = "SELECT * FROM message_history WHERE sender_username = ?";
+            PreparedStatement ps1 = con.prepareStatement(query1);
+            ps1.setString(1, newUsername);
+            ResultSet rs1 = ps1.executeQuery();
+            ArrayList<String> senderIsUpdated = new ArrayList<>();
+            while (rs1.next()){
+                senderIsUpdated.add(rs1.getString("content"));
+
+                MyLogger.getInstance().info("[TEST] - History has been updated for " + user1.getUsername() + " with new username:\n" + rs1.getString("sender_username"));
+            }
+            rs1.close();
+            ps1.close();
+
+            String query2 = "SELECT * FROM message_history WHERE receiver_username = ?";
+            PreparedStatement ps2 = con.prepareStatement(query2);
+            ps2.setString(1, newUsername);
+            ResultSet rs2 = ps2.executeQuery();
+            ArrayList<String> receiverIsUpdated = new ArrayList<>();
+            while (rs2.next()){
+                receiverIsUpdated.add(rs2.getString("content"));
+
+                MyLogger.getInstance().info("[TEST] - History has been updated for " + user1.getUsername() + " with new username:\n" + rs2.getString("receiver_username"));
+            }
+            rs2.close();
+            ps2.close();
+
+            assertEquals(2, senderIsUpdated.size());
+            assertEquals(1, receiverIsUpdated.size());
+            assertEquals("ceci est un message",senderIsUpdated.get(0));
+            assertEquals("ceci est un message 3",senderIsUpdated.get(1));
+            assertEquals("ceci est un message 2",receiverIsUpdated.get(0));
+
+
+            //delete messages from history
+            jdao.deleteFromHistory(msg1);
+            jdao.deleteFromHistory(msg2);
+            jdao.deleteFromHistory(msg3);
         }
     }
 
@@ -213,6 +292,12 @@ class JDBCdaoTest {
             jdao.addToHistoryDB(msg1);
             jdao.addToHistoryDB(msg2);
             jdao.addToHistoryDB(msg3);
+
+            MyLogger.getInstance().info("[TEST] - Added message in history:  sent by: " + msg1.sender().getUsername() + "  content:" + msg1.content());
+            MyLogger.getInstance().info("[TEST] - Added message in history:  sent by: " + msg2.sender().getUsername() + "  content:" + msg2.content());
+            MyLogger.getInstance().info("[TEST] - Added message in history:  sent by: " + msg3.sender().getUsername() + "  content:" + msg3.content());
+
+
             //check that messages are in history
             String query = "SELECT * FROM message_history WHERE uuid=?";
             PreparedStatement ps = con.prepareStatement(query);
@@ -245,7 +330,6 @@ class JDBCdaoTest {
             assertEquals( 2, hist.size());
             for (TCPMessage message: hist){
                 assertTrue(message.equals(msg1) || message.equals(msg2));
-                MyLogger.getInstance().info("[TEST] - Message from history with " + user1.getUsername()  + ":\n" + message.content());
             }
 
 
@@ -263,6 +347,8 @@ class JDBCdaoTest {
             psDel.executeUpdate();
         }
     }
+
+
 
     @Test
     void getConnectedUserList() throws SQLException, UnknownHostException {
@@ -306,7 +392,6 @@ class JDBCdaoTest {
             assertTrue(us.equals(user1) || us.equals(user2));
 
             MyLogger.getInstance().info("[TEST] - Connected user in DB:\n" + us);
-
         }
 
         //delete users from connected user table
@@ -327,5 +412,6 @@ class JDBCdaoTest {
             con.close();
         }
     }
+
 
 }

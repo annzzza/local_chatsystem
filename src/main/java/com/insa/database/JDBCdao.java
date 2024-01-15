@@ -14,6 +14,11 @@ public class JDBCdao {
 
     static Connection con = JDBC.getDBConnection();
 
+    /**
+     * adds a Message to the history table
+     * @param msg TCP message that has been received
+     * @throws SQLException incorrect query
+     */
     public void addToHistoryDB(TCPMessage msg) throws SQLException {
         String query = "INSERT INTO message_history "
                 +"(uuid, content, date, sender_username, receiver_username) "
@@ -28,6 +33,11 @@ public class JDBCdao {
         ps.close();
     }
 
+    /**
+     * Deletes message from the history db
+     * @param msg TCP message to be deleted
+     * @throws SQLException incorrect query
+     */
     public void deleteFromHistory(TCPMessage msg) throws SQLException{
         String query = "DELETE FROM message_history WHERE uuid=?";
         PreparedStatement ps = con.prepareStatement(query);
@@ -36,6 +46,11 @@ public class JDBCdao {
         ps.close();
     }
 
+    /**
+     * Adds ConnectedUser (on connection) to connected user table
+     * @param user Connected User to be added in DB
+     * @throws SQLException incorrect query
+     */
     public void addToConnectedUserDB(ConnectedUser user) throws SQLException {
         String query = "INSERT INTO connected_users "
                 + "(uuid, username, ip) "
@@ -48,6 +63,11 @@ public class JDBCdao {
         ps.close();
     }
 
+    /**
+     * delete (on disconnection) a user from the connected user table
+     * @param user ConnectedUser that disconnects
+     * @throws SQLException incorrect query
+     */
     public void deleteFromConnectedUserDB(ConnectedUser user) throws SQLException{
         String query = "DELETE FROM connected_users WHERE uuid = ?";
         PreparedStatement ps = con.prepareStatement(query);
@@ -55,6 +75,12 @@ public class JDBCdao {
         ps.executeUpdate();
     }
 
+    /**
+     * updates connected user table with new username for a given user (on username change)
+     * @param user User whose username has been changed
+     * @param newUsername new username for user
+     * @throws SQLException incorrect query
+     */
     public void updateConnectedUserDB(ConnectedUser user, String newUsername) throws  SQLException{
         String query = "UPDATE connected_users SET username = ? WHERE uuid = ?;";
         PreparedStatement ps = con.prepareStatement(query);
@@ -63,6 +89,37 @@ public class JDBCdao {
         ps.executeUpdate();
     }
 
+    /**
+     * Update 'receiver' and 'sender' fields of messages in history DB (on change username)
+     * @param userToUpdate user sending the new username
+     * @param newUsername new username for user
+     * @throws SQLException incorrect query
+     */
+    public void updateHistoryDB(User userToUpdate, String newUsername) throws SQLException{
+        //update username in message_history receiver field
+        String query1 = "UPDATE message_history SET receiver_username = ? WHERE receiver_username = ?";
+        PreparedStatement ps1 = con.prepareStatement(query1);
+        ps1.setString(1, newUsername);
+        ps1.setString(2, userToUpdate.getUsername());
+        ps1.executeUpdate();
+        ps1.close();
+
+        //update username in message_history sender field
+        String query2 = "UPDATE message_history SET sender_username=? WHERE sender_username= ?";
+        PreparedStatement ps2 = con.prepareStatement(query2);
+        ps2.setString(1, newUsername);
+        ps2.setString(2, userToUpdate.getUsername());
+        ps2.executeUpdate();
+        ps2.close();
+    }
+
+    /**
+     * Retrieve a list of TCP messages corresponding to a conversation with a selected user
+     * @param selectedUser user selected by self
+     * @param self user requesting the history list
+     * @return arraylist containing messages sent by selectedUser to self AND messages sent by self to selectedUser
+     * @throws SQLException incorrect query
+     */
     public ArrayList<TCPMessage> getHistoryWith(User selectedUser, User self) throws SQLException {
         ArrayList<TCPMessage> res = new ArrayList<>();
         String query = "SELECT * from message_history WHERE (sender_username = ? or receiver_username = ?) ORDER BY date;";
@@ -83,6 +140,12 @@ public class JDBCdao {
     }
 
 
+    /**
+     * @param self user requesting the list of connected users
+     * @return List of connected users, excluding the connected user self
+     * @throws SQLException incorrect query
+     * @throws UnknownHostException unrecognized IP address
+     */
     public ArrayList<ConnectedUser> getConnectedUserList(ConnectedUser self) throws SQLException, UnknownHostException {
         ArrayList<ConnectedUser> res = new ArrayList<>();
         String query = "SELECT * FROM connected_users WHERE uuid !=?;";
