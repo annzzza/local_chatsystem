@@ -7,7 +7,7 @@ import java.util.UUID;
 /**
  * This class represents a TCP message
  */
-public record TCPMessage(UUID uuid, String content, ConnectedUser sender, ConnectedUser receiver, Timestamp date) {
+public record TCPMessage(UUID uuid, String content, User sender, User receiver, Timestamp date) {
     /**
      * Method overriding equals to compare two TCPMessage objects
      *

@@ -16,22 +16,24 @@ public class JDBCdao {
 
     public void addToHistoryDB(TCPMessage msg) throws SQLException {
         String query = "INSERT INTO message_history "
-                +"(uuid, content, date, sender_ip, receiver_ip) "
+                +"(uuid, content, date, sender_username, receiver_username) "
                 + "VALUES (?, ?, ?, ?, ?);";
         PreparedStatement ps = con.prepareStatement(query);
         ps.setString(1, msg.uuid().toString());
         ps.setString(2, msg.content());
         ps.setDate(3, new Date(msg.date().getTime()));
-        ps.setString(4, msg.sender().getIP().toString().substring(1));
-        ps.setString(5, msg.receiver().getIP().toString().substring(1));
-        int n = ps.executeUpdate();
+        ps.setString(4, msg.sender().getUsername());
+        ps.setString(5, msg.receiver().getUsername());
+        ps.executeUpdate();
+        ps.close();
     }
 
     public void deleteFromHistory(TCPMessage msg) throws SQLException{
-        String query = "DELETE FROM message_history "
-                + "WHERE uuid=" + msg.uuid().toString() + ";";
+        String query = "DELETE FROM message_history WHERE uuid=?";
         PreparedStatement ps = con.prepareStatement(query);
-        ResultSet rs = ps.executeQuery();
+        ps.setString(1, msg.uuid().toString());
+        ps.executeUpdate();
+        ps.close();
     }
 
     public void addToConnectedUserDB(ConnectedUser user) throws SQLException {
@@ -42,28 +44,40 @@ public class JDBCdao {
         ps.setString(1, user.getUuid().toString());
         ps.setString(2, user.getUsername());
         ps.setString(3, user.getIP().toString().substring(1));
-        int n = ps.executeUpdate();
+        ps.executeUpdate();
+        ps.close();
     }
 
-    public void deleteFromConnectedUSerDB(ConnectedUser user) throws SQLException{
+    public void deleteFromConnectedUserDB(ConnectedUser user) throws SQLException{
         String query = "DELETE FROM connected_users WHERE uuid = ?";
         PreparedStatement ps = con.prepareStatement(query);
         ps.setString(1, user.getUuid().toString());
-        ResultSet rs = ps.executeQuery();
+        ps.executeUpdate();
     }
 
-    public ArrayList<TCPMessage> getHistoryWith(ConnectedUser user) throws SQLException, UnknownHostException {
-        ArrayList<TCPMessage> res = new ArrayList<>();
-        String query = "SELECT * from message_history WHERE (sender_ip = ? or receiver_ip = ?);";
+    public void updateConnectedUserDB(ConnectedUser user, String newUsername) throws  SQLException{
+        String query = "UPDATE connected_users SET username = ? WHERE uuid = ?;";
         PreparedStatement ps = con.prepareStatement(query);
-        ps.setString(1, user.getIP().toString().substring(1));
-        ps.setString(2, user.getIP().toString().substring(1));
+        ps.setString(1, newUsername);
+        ps.setString(2, user.getUuid().toString());
+        ps.executeUpdate();
+    }
+
+    public ArrayList<TCPMessage> getHistoryWith(User selectedUser, User self) throws SQLException {
+        ArrayList<TCPMessage> res = new ArrayList<>();
+        String query = "SELECT * from message_history WHERE (sender_username = ? or receiver_username = ?) ORDER BY date;";
+        PreparedStatement ps = con.prepareStatement(query);
+        ps.setString(1, selectedUser.getUsername());
+        ps.setString(2, selectedUser.getUsername());
         ResultSet rs = ps.executeQuery();
         while (rs.next()){
-            ConnectedUser blankFiller = new ConnectedUser("blank", InetAddress.getByName(rs.getString("receiver_ip")));
-            //ConnectedUser cu = new ConnectedUser("user", InetAddress.getByName(rs.getString(4)));
-            TCPMessage msg = new TCPMessage(UUID.fromString(rs.getString(1)), rs.getString(2), user, blankFiller,new Timestamp(rs.getDate(3 ).getTime()));
-            res.add(msg);
+            if (rs.getString("sender_username").equals(self.getUsername())){
+                TCPMessage msg = new TCPMessage(UUID.fromString(rs.getString("uuid")), rs.getString("content"), self, selectedUser, new Timestamp(rs.getDate("date" ).getTime()));
+                res.add(msg);
+            } else {
+                TCPMessage msg = new TCPMessage(UUID.fromString(rs.getString("uuid")), rs.getString("content"), selectedUser, self, new Timestamp(rs.getDate("date" ).getTime()));
+                res.add(msg);
+            }
         }
         return res;
     }
