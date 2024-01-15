@@ -5,10 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,9 +19,9 @@ public class TCPTests {
     @Test
     void testTCPClient() throws IOException, InterruptedException {
         // Create test messages
-        TCPMessage testMessage = new TCPMessage("Hello", new User("sender"), new User("receiver"), new Timestamp(new Date().getTime()));
-        TCPMessage testMessage2 = new TCPMessage("Hello \n new line", new User("sender2"), new User("receiver2"), new Timestamp(new Date().getTime()));
-        TCPMessage testMessage3 = new TCPMessage("Hello \n new line\t", new User("sender2"), new User("receiver2"), new Timestamp(new Date().getTime()));
+        TCPMessage testMessage = new TCPMessage(UUID.randomUUID(), "Hello", new User("sender"), new User("receiver"), new Timestamp(new Date().getTime()));
+        TCPMessage testMessage2 = new TCPMessage(UUID.randomUUID(),"Hello \n new line", new User("sender2"), new User("receiver2"), new Timestamp(new Date().getTime()));
+        TCPMessage testMessage3 = new TCPMessage(UUID.randomUUID(),"Hello \n new line\t",  new User("sender2"), new User("receiver2"), new Timestamp(new Date().getTime()));
         List<TCPMessage> testMessages = Arrays.asList(testMessage, testMessage2, testMessage3);
 
         // Create TCP Server
