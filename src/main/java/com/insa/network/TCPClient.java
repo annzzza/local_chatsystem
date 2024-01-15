@@ -4,8 +4,9 @@ import com.google.gson.GsonBuilder;
 import com.insa.utils.MyLogger;
 
 import java.io.*;
-import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is used to send TCP messages to a server
@@ -14,7 +15,25 @@ public class TCPClient {
     private Socket clientSocket;
     private PrintWriter out;
 
+    /**
+     * Observer interface for the TCP client
+     */
+    public interface TCPClientObserver {
+        /**
+         * Called when a new message is sent
+         * @param message
+         */
+        void sendMessage(TCPMessage message);
+    }
 
+    private static final List<TCPClientObserver> observerList = new ArrayList<>();
+
+    public void addObserver(TCPClientObserver observer) {
+        synchronized (observerList) {
+            MyLogger.getInstance().info("Adding observer");
+            observerList.add(observer);
+        }
+    }
     /**
      * Starts a connection with a server
      **/
@@ -33,6 +52,12 @@ public class TCPClient {
         MyLogger.getInstance().info("Sending message: " + gson.toJson(message));
         //System.out.println(("[TEST] - Check that conversion is working: " + gson.fromJson(gson.toJson(message), TCPMessage.class)));
         out.println(gson.toJson(message));
+        synchronized (observerList) {
+            for (TCPClientObserver observer : observerList) {
+                MyLogger.getInstance().info("Notifying observer that message was sent: " + message);
+                observer.sendMessage(message);
+            }
+        }
     }
 
     /**
