@@ -8,6 +8,8 @@ import java.util.Enumeration;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.insa.database.LocalDatabase;
+import com.insa.network.connectedusers.ConnectedUser;
+import com.insa.network.connectedusers.ConnectedUserList;
 import com.insa.utils.Constants;
 import com.insa.utils.MyLogger;
 
@@ -104,7 +106,7 @@ public class UDPServer extends Thread {
                 MyLogger.getInstance().info("Display connectedUserList:\n" + new GsonBuilder()
                             .setPrettyPrinting()
                             .create()
-                            .toJson(LocalDatabase.Database.connectedUserList)
+                            .toJson(ConnectedUserList.getInstance().getAllConnectedUsers())
                 );
             }
             case USER_CONNECTED -> {

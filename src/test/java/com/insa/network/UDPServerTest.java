@@ -3,7 +3,10 @@ package com.insa.network;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.insa.database.LocalDatabase;
+import com.insa.network.connectedusers.ConnectedUserList;
 import com.insa.utils.Constants;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,9 +23,19 @@ class UDPServerTest {
 
     private UDPServer server;
 
+    @BeforeAll
+    static void init() {
+        ConnectedUserList.getInstance().clear();
+    }
+
     @BeforeEach
     void setUp() {
         server = UDPServer.getInstance();
+    }
+
+    @AfterAll
+    static void tearDown() {
+        ConnectedUserList.getInstance().clear();
     }
 
     @Test
@@ -47,14 +60,14 @@ class UDPServerTest {
         broadcastMsg.setSender(testDiscoveryUser);
 
         // Check that database is empty
-        assertTrue(LocalDatabase.Database.connectedUserList.isEmpty());
+        assertTrue(ConnectedUserList.getInstance().isEmpty());
 
         // Process msg
         server.dataProcessing(gson.toJson(broadcastMsg), InetAddress.getByName("255.255.255.255"), Constants.UDP_SERVER_PORT);
 
         // Assertions based on expected changes
-        assertFalse(LocalDatabase.Database.connectedUserList.isEmpty());
-        assertTrue(LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(testDiscoveryUser.getUsername())));
+        assertFalse(ConnectedUserList.getInstance().isEmpty());
+        assertTrue(ConnectedUserList.getInstance().hasUsername(testDiscoveryUser.getUsername()));
     }
 
     @Test
@@ -66,12 +79,12 @@ class UDPServerTest {
         message.setSender(testNewUser);
 
         // Check that db only contains previous user
-        assertEquals(1, LocalDatabase.Database.connectedUserList.size());
+        assertEquals(1, ConnectedUserList.getInstance().size());
 
         server.dataProcessing(gson.toJson(message), InetAddress.getByName("255.255.255.255"), Constants.UDP_SERVER_PORT);
 
         // New user is added to the db
-        assertEquals(2, LocalDatabase.Database.connectedUserList.size());
-        assertTrue(LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(testNewUser.getUsername())));
+        assertEquals(2, ConnectedUserList.getInstance().size());
+        assertTrue(ConnectedUserList.getInstance().hasUsername(testNewUser.getUsername()));
     }
 }

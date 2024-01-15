@@ -2,6 +2,9 @@ package com.insa.network;
 
 import com.google.gson.GsonBuilder;
 import com.insa.database.LocalDatabase;
+import com.insa.network.connectedusers.ConnectedUser;
+import com.insa.network.connectedusers.ConnectedUserAlreadyExists;
+import com.insa.network.connectedusers.ConnectedUserList;
 import com.insa.utils.Constants;
 import com.insa.utils.MyLogger;
 
@@ -33,21 +36,11 @@ public class NetworkManager {
      * @param user ConnectedUser that notifies of his connection
      */
     public void notifyConnected(ConnectedUser user) {
-        if (LocalDatabase.Database.connectedUserList.stream().noneMatch(u -> u.getUsername().equals(user.getUsername()))) {
-            MyLogger.getInstance().info(String.format("Added user to connectedUserList: %s\n",
-                    new GsonBuilder()
-                            .setPrettyPrinting()
-                            .create()
-                            .toJson(user))
-            );
-            LocalDatabase.Database.connectedUserList.add(user);
-        } else {
-            MyLogger.getInstance().info(String.format("User already in connectedUserList: %s\n",
-                    new GsonBuilder()
-                            .setPrettyPrinting()
-                            .create()
-                            .toJson(user))
-            );
+        try {
+            ConnectedUserList.getInstance().addConnectedUser(user);
+            MyLogger.getInstance().info("Added user to connectedUserList: " + user);
+        } catch (ConnectedUserAlreadyExists e) {
+            MyLogger.getInstance().info("Received duplicated connectedUser: " + e);
         }
     }
 
@@ -57,27 +50,13 @@ public class NetworkManager {
      * @param user ConnectedUser that informs of disconnection
      */
     public void notifyDisconnected(ConnectedUser user) {
-        //TODO USER is never disconnected??
-        if (LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(user.getUsername()))) {
-            MyLogger.getInstance().info(String.format("Removed user from connectedUserList: %s\n",
-                    new GsonBuilder()
-                            .setPrettyPrinting()
-                            .create()
-                            .toJson(user))
-            );
-            boolean removed = LocalDatabase.Database.connectedUserList.removeIf(u -> u.getUsername().equals(user.getUsername()));
-
+        if (ConnectedUserList.getInstance().contains(user)) {
+            ConnectedUserList.getInstance().removeConnectedUser(user);
+            MyLogger.getInstance().info("Removed user from connectedUserList: " + user);
         } else {
-            MyLogger.getInstance().info(String.format("User not found in connectedUserList: %s\n",
-                    new GsonBuilder()
-                            .setPrettyPrinting()
-                            .create()
-                            .toJson(user))
-            );
+            MyLogger.getInstance().info("User not found in connectedUserList: " + user);
         }
     }
-
-    //TODO notifychangeusername
 
     /**
      * Check if newUsername already used in connectedUSer list ; updates the database if not.
@@ -86,20 +65,10 @@ public class NetworkManager {
      * @param newUsername String chosen new Username
      */
     public void notifyChangeUsername(ConnectedUser user, String newUsername){
-        if (LocalDatabase.Database.connectedUserList.stream().anyMatch(u -> u.getUsername().equals(newUsername))) {
+        if(ConnectedUserList.getInstance().changeUsername(user, newUsername)){
             MyLogger.getInstance().info(String.format("Username already used in connectedUserList, has not been updated."));
         } else {
-            boolean removed = LocalDatabase.Database.connectedUserList.removeIf(u -> u.getUsername().equals(user.getUsername()));
-            if(removed) {
-                LocalDatabase.Database.connectedUserList.add(new ConnectedUser(newUsername, user.getIP()));
-            }
-
-            MyLogger.getInstance().info(String.format("Username has been changed in connectedUserList: %s\n",
-                    new GsonBuilder()
-                            .setPrettyPrinting()
-                            .create()
-                            .toJson(LocalDatabase.Database.connectedUserList))
-            );
+            MyLogger.getInstance().info(String.format("Username has been changed in connectedUserList: %s\n", newUsername));
         }
     }
 
@@ -131,9 +100,8 @@ public class NetworkManager {
 
 
         MyLogger.getInstance().info("Checking whether the username is already taken...");
-        List<ConnectedUser> contactList = LocalDatabase.Database.connectedUserList;
-        if (!contactList.isEmpty() && contactList.stream().anyMatch(u -> u.getUsername().equals(username))) {
-                userInDB = true;
+        if(ConnectedUserList.getInstance().hasUsername(username)){
+            userInDB = true;
         }
         MyLogger.getInstance().info("Discovery finished");
 
@@ -182,7 +150,7 @@ public class NetworkManager {
 
         try {
             udpClient.sendBroadcast(disconnectedMessage, Constants.UDP_SERVER_PORT);
-            LocalDatabase.Database.connectedUserList = new ArrayList<>();
+            ConnectedUserList.getInstance().clear();
             LocalDatabase.Database.currentUser = null;
         } catch (IOException e) {
             throw new RuntimeException(e);

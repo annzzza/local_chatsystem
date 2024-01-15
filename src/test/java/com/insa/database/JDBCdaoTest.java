@@ -1,6 +1,6 @@
 package com.insa.database;
 
-import com.insa.network.ConnectedUser;
+import com.insa.network.connectedusers.ConnectedUser;
 import com.insa.network.TCPMessage;
 import com.insa.network.User;
 import com.insa.utils.MyLogger;

@@ -1,4 +1,6 @@
-package com.insa.network;
+package com.insa.network.connectedusers;
+
+import com.insa.network.User;
 
 import java.net.InetAddress;
 import java.util.UUID;
