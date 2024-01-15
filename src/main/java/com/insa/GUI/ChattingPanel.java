@@ -125,7 +125,7 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         // Send button
         JButton sendButton = new JButton("SEND");
         sendButton.setBackground(new Color(136, 171, 142));
-        SendMessageController sendMessageController = new SendMessageController(usernameSelectedChat, messageTextField.getText(), tcpClient);
+        SendMessageController sendMessageController = new SendMessageController(usernameSelectedChat, messageTextField, tcpClient);
         sendButton.addActionListener(sendMessageController);
         bottomMenu.add(sendButton);
 

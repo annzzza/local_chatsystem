@@ -1,5 +1,6 @@
 package com.insa.GUI.controller;
 
+import com.insa.GUI.PlaceholderTextField;
 import com.insa.database.LocalDatabase;
 import com.insa.network.TCPClient;
 import com.insa.network.TCPMessage;
@@ -18,7 +19,7 @@ import java.util.UUID;
  */
 public class SendMessageController implements ActionListener {
     final private String usernameSelectedChat; // username of the user we want to send a message to
-    final private String messageToSend; // message to send
+    final private PlaceholderTextField placeholderTextField; // message to send
     final private TCPClient tcpClient; // TCP client to send the message
 
     /*
@@ -27,10 +28,10 @@ public class SendMessageController implements ActionListener {
         @param messageToSend: message to send
         @param tcpClient: TCP client to send the message
      */
-    public SendMessageController(String usernameSelectedChat, String messageToSend, TCPClient tcpClient) {
+    public SendMessageController(String usernameSelectedChat, PlaceholderTextField messageToSendField, TCPClient tcpClient) {
         super();
         this.usernameSelectedChat = usernameSelectedChat;
-        this.messageToSend = messageToSend;
+        this.placeholderTextField = messageToSendField;
         this.tcpClient = tcpClient;
     }
 
@@ -42,6 +43,6 @@ public class SendMessageController implements ActionListener {
         ConnectedUser connectedUserSelected = ConnectedUserList.getInstance().getConnectedUser(usernameSelectedChat);
 
         // Make message
-        tcpClient.sendMessage(new TCPMessage(UUID.randomUUID(), messageToSend, LocalDatabase.Database.currentUser, connectedUserSelected, new Timestamp(new Date().getTime())));
+        tcpClient.sendMessage(new TCPMessage(UUID.randomUUID(), placeholderTextField.getText(), LocalDatabase.Database.currentUser, connectedUserSelected, new Timestamp(new Date().getTime())));
     }
 }
