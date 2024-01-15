@@ -83,10 +83,11 @@ public class JDBCdao {
     }
 
 
-    public ArrayList<ConnectedUser> getConnectedUserList() throws SQLException, UnknownHostException {
+    public ArrayList<ConnectedUser> getConnectedUserList(ConnectedUser self) throws SQLException, UnknownHostException {
         ArrayList<ConnectedUser> res = new ArrayList<>();
-        String query = "SELECT * from connected_users;";
+        String query = "SELECT * FROM connected_users WHERE uuid !=?;";
         PreparedStatement ps = con.prepareStatement(query);
+        ps.setString(1, self.getUuid().toString());
         ResultSet rs = ps.executeQuery();
         while (rs.next()){
             ConnectedUser cu = new ConnectedUser(rs.getString(2), UUID.fromString(rs.getString(1)), InetAddress.getByName(rs.getString(3)));

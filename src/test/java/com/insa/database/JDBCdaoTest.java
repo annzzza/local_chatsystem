@@ -25,7 +25,7 @@ class JDBCdaoTest {
     ConnectedUser user1;
     ConnectedUser user2;
 
-    User self;
+    ConnectedUser self;
 
     public static boolean doesTableExist(Connection connection, String tableName) throws SQLException {
         String query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
@@ -52,7 +52,7 @@ class JDBCdaoTest {
         if (con != null){
             user1 = new ConnectedUser("annatest", (InetAddress.getByName("192.168.69.69")));
             user2 = new ConnectedUser("ronantest", InetAddress.getByName("192.168.42.42"));
-            self = new User("self");
+            self = new ConnectedUser("self", InetAddress.getByName("localhost"));
         }
     }
 
@@ -267,6 +267,7 @@ class JDBCdaoTest {
     @Test
     void getConnectedUserList() throws SQLException, UnknownHostException {
         //insert connected users in table
+        jdao.addToConnectedUserDB(self);
         jdao.addToConnectedUserDB(user1);
         jdao.addToConnectedUserDB(user2);
 
@@ -287,10 +288,17 @@ class JDBCdaoTest {
         String user2UUID = rs2.getString("uuid");
         rs2.close();
 
+        ps.setString(1, self.getUuid().toString());
+        ResultSet rs3 = ps.executeQuery();
+        assertTrue((rs3.next()));
+        assertEquals(self.getUsername(), rs3.getString("username"));
+        String selfUUID = rs3.getString("uuid");
+        rs3.close();
+
         ps.close();
 
         //retrieve list of connected users
-        ArrayList<ConnectedUser> conUsers = jdao.getConnectedUserList();
+        ArrayList<ConnectedUser> conUsers = jdao.getConnectedUserList(self);
 
         //check that list corresponds
         assertEquals(2, conUsers.size());
@@ -307,6 +315,8 @@ class JDBCdaoTest {
         psDel.setString(1, user1UUID);
         psDel.executeUpdate();
         psDel.setString(1, user2UUID);
+        psDel.executeUpdate();
+        psDel.setString(1, selfUUID);
         psDel.executeUpdate();
         psDel.close();
     }
