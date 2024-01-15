@@ -82,11 +82,20 @@ public class JDBCdao {
      * @throws SQLException incorrect query
      */
     public void updateConnectedUserDB(ConnectedUser user, String newUsername) throws  SQLException{
-        String query = "UPDATE connected_users SET username = ? WHERE uuid = ?;";
-        PreparedStatement ps = con.prepareStatement(query);
-        ps.setString(1, newUsername);
-        ps.setString(2, user.getUuid().toString());
-        ps.executeUpdate();
+        //make sure the new username is not already used in the DB
+        String qry = "SELECT * FROM connected_users WHERE username = ?";
+        PreparedStatement pst = con.prepareStatement(qry);
+        pst.setString(1, newUsername);
+        ResultSet rs = pst.executeQuery();
+        if (!rs.next()) {
+            String query = "UPDATE connected_users SET username = ? WHERE uuid = ?;";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, newUsername);
+            ps.setString(2, user.getUuid().toString());
+            ps.executeUpdate();
+        } else {
+            System.out.println("NON");
+        }
     }
 
     /**
@@ -96,21 +105,31 @@ public class JDBCdao {
      * @throws SQLException incorrect query
      */
     public void updateHistoryDB(User userToUpdate, String newUsername) throws SQLException{
-        //update username in message_history receiver field
-        String query1 = "UPDATE message_history SET receiver_username = ? WHERE receiver_username = ?";
-        PreparedStatement ps1 = con.prepareStatement(query1);
-        ps1.setString(1, newUsername);
-        ps1.setString(2, userToUpdate.getUsername());
-        ps1.executeUpdate();
-        ps1.close();
 
-        //update username in message_history sender field
-        String query2 = "UPDATE message_history SET sender_username=? WHERE sender_username= ?";
-        PreparedStatement ps2 = con.prepareStatement(query2);
-        ps2.setString(1, newUsername);
-        ps2.setString(2, userToUpdate.getUsername());
-        ps2.executeUpdate();
-        ps2.close();
+        //make sure the new username is not already used in the DB
+        String query = "SELECT * FROM message_history WHERE receiver_username = ? or sender_username = ?";
+        PreparedStatement ps = con.prepareStatement(query);
+        ps.setString(1, newUsername);
+        ps.setString(2, newUsername);
+        ResultSet rs = ps.executeQuery();
+        if (!rs.next()) {
+
+            //update username in message_history receiver field
+            String query1 = "UPDATE message_history SET receiver_username = ? WHERE receiver_username = ?";
+            PreparedStatement ps1 = con.prepareStatement(query1);
+            ps1.setString(1, newUsername);
+            ps1.setString(2, userToUpdate.getUsername());
+            ps1.executeUpdate();
+            ps1.close();
+
+            //update username in message_history sender field
+            String query2 = "UPDATE message_history SET sender_username=? WHERE sender_username= ?";
+            PreparedStatement ps2 = con.prepareStatement(query2);
+            ps2.setString(1, newUsername);
+            ps2.setString(2, userToUpdate.getUsername());
+            ps2.executeUpdate();
+            ps2.close();
+        }
     }
 
     /**
