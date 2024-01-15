@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.UUID;
 
 /*
  * Controller for sending a message
@@ -41,6 +42,6 @@ public class SendMessageController implements ActionListener {
         ConnectedUser connectedUserSelected = ConnectedUserList.getInstance().getConnectedUser(usernameSelectedChat);
 
         // Make message
-        tcpClient.sendMessage(new TCPMessage(messageToSend, LocalDatabase.Database.currentUser, connectedUserSelected, new Timestamp(new Date().getTime())));
+        tcpClient.sendMessage(new TCPMessage(UUID.randomUUID(), messageToSend, LocalDatabase.Database.currentUser, connectedUserSelected, new Timestamp(new Date().getTime())));
     }
 }
