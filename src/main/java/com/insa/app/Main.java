@@ -1,20 +1,19 @@
 package com.insa.app;
 
-import com.insa.GUI.NoGui;
-import com.insa.network.NetworkManager;
+import com.insa.users.ConnectedUserList;
 import com.insa.utils.MyLogger;
+
 import java.util.*;
 
-import static java.lang.System.exit;
-
 public class Main {
+    private static final MyLogger LOGGER = new MyLogger(Main.class.getName());
+
     public static void main(String[] args) {
-        MyLogger.getInstance().info("Args: " + Arrays.toString(args));
-        if (Arrays.asList(args).contains("no-gui")) {
-            MyLogger.getInstance().info("Running with no gui");
-            NoGui.getInstance();
-        } else {
-            App.main(args);
-        }
+        LOGGER.info("Args: " + Arrays.toString(args));
+
+        // To initialize it
+        ConnectedUserList connectedUserList = ConnectedUserList.getInstance();
+        App.main(args);
+
     }
 }

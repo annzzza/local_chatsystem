@@ -1,5 +1,9 @@
 package com.insa.network;
 
+import com.insa.network.tcp.TCPClient;
+import com.insa.network.tcp.TCPMessage;
+import com.insa.network.tcp.TCPServer;
+import com.insa.users.User;
 import com.insa.utils.MyLogger;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +14,9 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TCPTests {
+
+    private static final MyLogger LOGGER = new MyLogger(TCPTests.class.getName());
+
 
     private static final int TEST_PORT = 1234;
 
@@ -42,8 +49,8 @@ public class TCPTests {
         // Check that the messages have been received
         Thread.sleep(100);
 
-        MyLogger.getInstance().info("[TEST] - Received messages list:\n" +  receivedMessages);
-
+        LOGGER.info("[TEST] - Received messages list:\n" +  receivedMessages);
+        LOGGER.severe("HEEEY");
         assertEquals(testMessages.size(), receivedMessages.size());
         assertEquals(testMessages, receivedMessages);
 
