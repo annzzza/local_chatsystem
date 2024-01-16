@@ -3,11 +3,12 @@ package com.insa.utils;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Formatter;
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 public class LogFormatter extends Formatter {
     // ANSI escape code
     public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_BOLD = "\u001B[1m";
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
@@ -26,19 +27,44 @@ public class LogFormatter extends Formatter {
         // This example will print date/time, class, and log level in yellow,
         // followed by the log message and it's parameters in white .
         StringBuilder builder = new StringBuilder();
+
+        builder.append(ANSI_BOLD);
+        if (record.getLevel() == Level.INFO)
+            builder.append(ANSI_GREEN);
+        else if (record.getLevel() == Level.SEVERE)
+            builder.append(ANSI_RED);
+        else if (record.getLevel() == Level.WARNING)
+            builder.append(ANSI_YELLOW);
+        else if (record.getLevel() == Level.CONFIG)
+            builder.append(ANSI_CYAN);
+        else if (record.getLevel() == Level.FINE)
+            builder.append(ANSI_BLUE);
+        else if (record.getLevel() == Level.FINER)
+            builder.append(ANSI_BLUE);
+        else if (record.getLevel() == Level.FINEST)
+            builder.append(ANSI_BLUE);
+        else
+            builder.append(ANSI_WHITE);
+        builder.append("[");
+        builder.append(record.getLevel().getName());
+        builder.append("]");
+
+        builder.append(ANSI_RESET);
+
         builder.append(ANSI_BLUE);
 
         builder.append("[");
         builder.append(calcDate(record.getMillis()));
         builder.append("]");
 
-//        builder.append(" [");
-//        builder.append(record.getSourceClassName());
-//        builder.append("]");
+        builder.append(ANSI_PURPLE);
+
 
         builder.append(" [");
-        builder.append(record.getLevel().getName());
+        builder.append(record.getLoggerName());
         builder.append("]");
+
+
 
         builder.append(ANSI_WHITE);
         builder.append(" - ");

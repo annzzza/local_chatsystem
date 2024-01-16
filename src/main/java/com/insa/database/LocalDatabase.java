@@ -1,10 +1,7 @@
 package com.insa.database;
-import com.insa.network.connectedusers.ConnectedUser;
-import com.insa.network.User;
+import com.insa.users.User;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class LocalDatabase {
