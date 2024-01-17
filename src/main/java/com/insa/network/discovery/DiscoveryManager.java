@@ -43,6 +43,8 @@ public class DiscoveryManager {
             udpClient.sendBroadcast(discoveryMessage, Constants.UDP_SERVER_PORT);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (NoBroadcastAddressFound e) {
+            LOGGER.severe(e.toString());
         }
 
         LOGGER.info("Waiting for responses");
@@ -69,6 +71,8 @@ public class DiscoveryManager {
 
             udpClient.sendBroadcast(changeUsernameMessage, Constants.UDP_SERVER_PORT);
             LocalDatabase.Database.currentUser = new User(newUsername, LocalDatabase.Database.currentUser.getUuid());
+        } catch (NoBroadcastAddressFound e){
+            LOGGER.severe(e.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -89,6 +93,8 @@ public class DiscoveryManager {
             udpClient.sendBroadcast(disconnectedMessage, Constants.UDP_SERVER_PORT);
             ConnectedUserList.getInstance().clear();
             LocalDatabase.Database.currentUser = null;
+        } catch (NoBroadcastAddressFound e){
+            LOGGER.severe(e.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

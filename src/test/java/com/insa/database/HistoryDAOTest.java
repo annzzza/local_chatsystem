@@ -60,7 +60,7 @@ class HistoryDAOTest {
     }
 
     @Test
-    void addToHistoryDB() throws SQLException {
+    void addToHistoryDB() throws DAOException, SQLException {
         //Create a TCP Message
         TCPMessage msg = new TCPMessage(UUID.randomUUID(), "ceci est un message", user1, user2, new Timestamp(24859L));
         //Add it to the History table
@@ -94,7 +94,7 @@ class HistoryDAOTest {
     }
 
     @Test
-    void deleteFromHistory() throws SQLException {
+    void deleteFromHistory() throws DAOException, SQLException {
         //Create a TCP Message
         TCPMessage msg = new TCPMessage(UUID.randomUUID(), "ceci est un message", user1, user2, new Timestamp(24859L));
         //Add it to the History table
@@ -111,7 +111,7 @@ class HistoryDAOTest {
 
 
     @Test
-    void updateHistoryDB() throws SQLException {
+    void updateHistoryDB() throws DAOException, SQLException {
         if (con != null) {
             //create two messages from user1
             TCPMessage msg1 = new TCPMessage(UUID.randomUUID(), "ceci est un message", user1, user2, new Timestamp(24859L));
@@ -171,7 +171,7 @@ class HistoryDAOTest {
     }
 
     @Test
-    void getHistoryWith() throws SQLException {
+    void getHistoryWith() throws DAOException, SQLException {
         if (con != null) {
             //create two messages from user1
             TCPMessage msg1 = new TCPMessage(UUID.randomUUID(), "ceci est un message", user1, user2, new Timestamp(24859L));
