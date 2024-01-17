@@ -18,7 +18,7 @@ public class HistoryDAO {
      * adds a Message to the history table
      *
      * @param msg TCP message that has been received
-     * @throws SQLException incorrect query
+     * @throws DAOException message could not be added to history
      */
     public void addToHistoryDB(TCPMessage msg) throws DAOException {
         LOGGER.info("Adding message to history DB " + msg.content());
@@ -46,7 +46,7 @@ public class HistoryDAO {
      * Deletes message from the history db
      *
      * @param msg TCP message to be deleted
-     * @throws SQLException incorrect query
+     * @throws DAOException message could not be deleted from history
      */
     public void deleteFromHistory(TCPMessage msg) throws DAOException {
         LOGGER.info("Deleting message from history DB " + msg.toString());
@@ -68,7 +68,7 @@ public class HistoryDAO {
      *
      * @param userToUpdate user sending the new username
      * @param newUsername  new username for user
-     * @throws SQLException incorrect query
+     * @throws DAOException history could not be updated
      */
     public void updateHistoryDB(User userToUpdate, String newUsername) throws DAOException {
         LOGGER.info("Updating history DB for user " + userToUpdate.getUsername() + " with new username " + newUsername);
@@ -109,7 +109,7 @@ public class HistoryDAO {
      * @param selectedUser user selected by self
      * @param self         user requesting the history list
      * @return arraylist containing messages sent by selectedUser to self AND messages sent by self to selectedUser
-     * @throws SQLException incorrect query
+     * @throws DAOException history could not be retrieved
      */
     public ArrayList<TCPMessage> getHistoryWith(User selectedUser, User self) throws DAOException {
         LOGGER.info("Getting history with " + selectedUser.getUsername() + " for user " + self.getUsername());
