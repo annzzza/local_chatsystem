@@ -21,7 +21,7 @@ import java.awt.event.WindowEvent;
 public class MainWindow {
     private static final MyLogger LOGGER = new MyLogger(MainWindow.class.getName());
 
-
+    private String username;
     private final JFrame window = new JFrame("Clavardages" + " - " + LocalDatabase.Database.currentUser.getUsername());
 
     private final Color whiteBackground = new Color(242, 241, 235);
@@ -93,7 +93,8 @@ public class MainWindow {
         listChats.addListSelectionListener(e -> {
             if(listChats.getSelectedValue() != null) {
                 String usernameSelectedChat = listChats.getSelectedValue().toString();
-                ChattingPanel chattingPanel = new ChattingPanel(usernameSelectedChat, tcpServer);
+                LOGGER.info("creating chatting pannel from contact list");
+                ChattingPanel chattingPanel = new ChattingPanel(usernameSelectedChat, username, tcpServer);
                 jSplitPane.setRightComponent(chattingPanel);
             } else {
                 Label defaultRightPanel = new Label("Select a user to chat with!");
@@ -114,10 +115,10 @@ public class MainWindow {
         window.add(jSplitPane, BorderLayout.CENTER);
     }
 
-    public void start() {
+    public void start(String username) {
         //ImageIcon img = new ImageIcon("src/main/java/com/insa/GUI/iconChatSystem.png");
         //window.setIconImage(img.getImage());
-
+        this.username = username;
 
         // Start TCP server
         try {
@@ -157,6 +158,6 @@ public class MainWindow {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MainWindow().start());
+        //SwingUtilities.invokeLater(() -> new MainWindow().start("HEIN?")); //TODO : wtf?
     }
 }

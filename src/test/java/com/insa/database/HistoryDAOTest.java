@@ -22,7 +22,7 @@ class HistoryDAOTest {
     private static final MyLogger LOGGER = new MyLogger(HistoryDAOTest.class.getName());
 
 
-    HistoryDAO jdao = new HistoryDAO();
+    static HistoryDAO jdao;
     static Connection con;
 
     ConnectedUser user1;
@@ -30,20 +30,12 @@ class HistoryDAOTest {
 
     ConnectedUser self;
 
-    public static boolean doesTableExist(Connection connection, String tableName) throws SQLException {
-        String query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, tableName);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                return resultSet.next(); // If the result set has at least one row, the table exists
-            }
-        }
-    }
 
     @BeforeAll
     static void setUpPrimary() throws SQLException {
         con = Database.getDBConnection();
-        if (!(doesTableExist(con, "message_history"))) {
+        jdao = new HistoryDAO();
+        if (!(jdao.doesTableExist(con, "message_history"))) {
             Database.createTables(con);
         }
     }

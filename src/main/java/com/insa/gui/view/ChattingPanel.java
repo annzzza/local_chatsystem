@@ -1,17 +1,22 @@
 package com.insa.gui.view;
 
+import com.insa.database.HistoryDAO;
+import com.insa.database.LocalDatabase;
 import com.insa.gui.controller.SendMessageController;
 import com.insa.network.tcp.TCPClient;
 import com.insa.network.tcp.TCPMessage;
 import com.insa.network.tcp.TCPServer;
 import com.insa.users.ConnectedUser;
 import com.insa.users.ConnectedUserList;
+import com.insa.users.User;
 import com.insa.utils.Constants;
 import com.insa.utils.MyLogger;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 /*
    Panel for chatting with a user
@@ -26,15 +31,25 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
 
     private final TCPClient tcpClient = new TCPClient();
     final private String usernameSelectedChat;
+    private final ConnectedUser connectedUserSelected;
+
+    private final String usernameSelf;
+
+
+    private final HistoryDAO historyDAO;
 
     /*
         Constructor
         @param usernameSelectedChat: username of the user we want to send a message to
         @param tcpServer: TCP server to receive messages
      */
-    public ChattingPanel(String usernameSelectedChat, TCPServer tcpServer){
+    public ChattingPanel(String usernameSelectedChat, String usernameSelf, TCPServer tcpServer){
         super();
         this.usernameSelectedChat = usernameSelectedChat;
+        this.usernameSelf = usernameSelf;
+        this.historyDAO = new HistoryDAO();
+
+        connectedUserSelected = ConnectedUserList.getInstance().getConnectedUser(usernameSelectedChat);
 
         // Set up connection between TCP client and TCP server
         setTcpClient();
@@ -56,7 +71,7 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         Set up connection between TCP client and TCP server
      */
     private void setTcpClient() {
-        ConnectedUser connectedUserSelected = ConnectedUserList.getInstance().getConnectedUser(usernameSelectedChat);
+       // ConnectedUser connectedUserSelected = ConnectedUserList.getInstance().getConnectedUser(usernameSelectedChat);
 
         if(connectedUserSelected == null) {
             LOGGER.info("No connected user found for username " + usernameSelectedChat);
@@ -102,6 +117,17 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         historySentMessage.setLayout(new BoxLayout(historySentMessage, BoxLayout.Y_AXIS));
 
         // TODO: Load history
+        try {
+            ArrayList<TCPMessage> historyList = historyDAO.getHistoryWith(connectedUserSelected, new User(usernameSelf));
+            for (TCPMessage message : historyList){
+                //Add message to history panel
+                addMessage(message);
+            }
+        } catch (SQLException e) {
+            LOGGER.severe("Could not retrieve History with " + usernameSelectedChat);
+            //throw new RuntimeException(e);
+        }
+
 
         historyPanel.add(historyReceivedMessage, BorderLayout.WEST);
         historyPanel.add(historySentMessage, BorderLayout.EAST);
@@ -134,11 +160,12 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
     }
 
     /*
-        * Update history of messages when receiving a message
-        * @param message to be added to history
+        Add message content and date to the panel it belongs
+        @param message TCPmessage either sent or received by the selected user
      */
-    @Override
-    public void onNewMessage(TCPMessage message) {
+    private void addMessage(TCPMessage message) {
+        LOGGER.info("in function addMessage:");
+
         // If message is sent by the user selected in the left panel
         if (message.sender().getUsername().equals(usernameSelectedChat)) {
             LOGGER.info("Display message received from " + message.sender().getUsername() + " in chat with " + usernameSelectedChat + ": " + message.content() + " at " + message.date());
@@ -149,17 +176,10 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
             // We add empty labels to keep the same size as the sent messages
             historySentMessage.add(new JLabel(("<html><br/><br/></html>")));
             historySentMessage.add(new JLabel(("<html><br/><br/></html>")));
-        }
-    }
 
-    /*
-        * Update history of messages when sending a message
-        * @param message to be added to history
-     */
-    @Override
-    public void sendMessage(TCPMessage message) {
+        }
         // If message is received by the user selected in the left panel
-        if (message.receiver().getUsername().equals(usernameSelectedChat)) {
+        else if (message.receiver().getUsername().equals(usernameSelectedChat)) {
             LOGGER.info("Display message sent to " + message.receiver().getUsername() + " in chat with " + usernameSelectedChat + ": " + message.content() + " at " + message.date());
             // Add message to history panel of sent messages
             historySentMessage.add(new JLabel("<html> " + message.content() + "<br/>" + message.date() + "</html>"));
@@ -168,10 +188,46 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
             // We add empty labels to keep the same size as the received messages
             historyReceivedMessage.add(new JLabel(("<html><br/><br/></html>")));
             historyReceivedMessage.add(new JLabel(("<html><br/><br/></html>")));
+        }
+        // Refresh history panel
+        historySentMessage.revalidate();
+        historySentMessage.repaint();
+    }
 
-            // Refresh history panel
-            historySentMessage.revalidate();
-            historySentMessage.repaint();
+    /*
+        * Update history of messages when receiving a message
+        * @param message to be added to history
+     */
+    @Override
+    public void onNewMessage(TCPMessage message) {
+        LOGGER.info("in function onNewMessage:");
+        //Add message to history panel
+        addMessage(message);
+        //Add message to history DB
+        try{
+            historyDAO.addToHistoryDB(message);
+            LOGGER.info("successfully added msg in DB");
+        } catch (SQLException e){
+            LOGGER.severe("SQL Error: " + e.getMessage());
+            LOGGER.severe("Message was not added to DB");
+        }
+    }
+    /*
+        * Update history of messages when sending a message
+        * @param message to be added to history
+     */
+    @Override
+    public void sendMessage(TCPMessage message) {
+        LOGGER.info("in function sendMessage:");
+        //Add message to history panel
+        addMessage(message);
+        //Add message to history DB
+        try{
+            historyDAO.addToHistoryDB(message);
+            LOGGER.info("successfully added msg in DB");
+        } catch (SQLException e){
+            LOGGER.severe("SQL Error: " + e.getMessage());
+            LOGGER.severe("Message was not added to DB");
         }
     }
 }

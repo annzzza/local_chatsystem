@@ -12,8 +12,27 @@ public class HistoryDAO {
 
     private static final MyLogger LOGGER = new MyLogger(HistoryDAO.class.getName());
 
-    static Connection con = Database.getDBConnection();
+    Connection con = Database.getDBConnection();
 
+    public HistoryDAO(){
+        try {
+            if (!doesTableExist(con, "message_history")) {
+                Database.createTables(con);}
+        } catch (SQLException e) {
+            LOGGER.severe("Tables could not be created");
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean doesTableExist(Connection connection, String tableName) throws SQLException {
+        String query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, tableName);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next(); // If the result set has at least one row, the table exists
+            }
+        }
+    }
     /**
      * adds a Message to the history table
      *
@@ -21,7 +40,7 @@ public class HistoryDAO {
      * @throws SQLException incorrect query
      */
     public void addToHistoryDB(TCPMessage msg) throws SQLException {
-        LOGGER.info("Adding message to history DB " + msg.content());
+        LOGGER.info("Adding message to history DB " + msg);
 
         String query = "INSERT INTO message_history "
                 + "(uuid, content, date, sender_username, receiver_username) "
