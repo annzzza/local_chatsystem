@@ -41,10 +41,10 @@ public class DiscoveryManager {
         try {
             LOGGER.info("Broadcast discovery sent");
             udpClient.sendBroadcast(discoveryMessage, Constants.UDP_SERVER_PORT);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         } catch (NoBroadcastAddressFound e) {
             LOGGER.severe(e.toString());
+        }  catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         LOGGER.info("Waiting for responses");

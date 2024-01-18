@@ -15,6 +15,7 @@ public class Database {
         try {
             Class.forName(DB_DRIVER);
         } catch (ClassNotFoundException e) {
+            LOGGER.severe("Database Driver was not found.");
             throw new RuntimeException(e);
         }
         try {
@@ -33,11 +34,11 @@ public class Database {
         LOGGER.info("Creating tables in database");
         // first table: history of messages
         String tableHistory = "CREATE TABLE message_history "
-                + "(uuid CHAR(36) PRIMARY KEY NOT NULL, "
-                + "content CHAR(280) NOT NULL, "
+                + "(uuid VARCHAR(36) PRIMARY KEY NOT NULL, "
+                + "content TEXT NOT NULL, "
                 + "date DATETIME, "
-                + "sender_username CHAR(200) NOT NULL,"
-                + "receiver_username CHAR(200) NOT NULL);";
+                + "sender_username VARCHAR(200) NOT NULL,"
+                + "receiver_username VARCHAR(200) NOT NULL);";
 
         stmt.executeUpdate(tableHistory);
         stmt.close();
