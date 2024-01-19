@@ -4,8 +4,8 @@ import com.insa.gui.controller.ChangeUsernameController;
 import com.insa.gui.controller.DisconnectionController;
 import com.insa.gui.view.ChattingPanel;
 import com.insa.gui.view.ContactView;
-import com.insa.database.LocalDatabase;
 import com.insa.gui.view.PlaceholderTextField;
+import com.insa.network.discovery.DiscoveryManager;
 import com.insa.network.tcp.TCPServer;
 import com.insa.utils.Constants;
 import com.insa.utils.MyLogger;
@@ -22,7 +22,7 @@ public class MainWindow {
     private static final MyLogger LOGGER = new MyLogger(MainWindow.class.getName());
 
 
-    private final JFrame window = new JFrame("Clavardages" + " - " + LocalDatabase.Database.currentUser.getUsername());
+    private final JFrame window = new JFrame("Clavardages" + " - " + DiscoveryManager.getInstance().getCurrentUser().getUsername());
 
     private final Color whiteBackground = new Color(242, 241, 235);
 

@@ -1,7 +1,7 @@
 package com.insa.gui.controller;
 
 import com.insa.gui.view.PlaceholderTextField;
-import com.insa.database.LocalDatabase;
+import com.insa.network.discovery.DiscoveryManager;
 import com.insa.network.tcp.TCPClient;
 import com.insa.network.tcp.TCPMessage;
 import com.insa.users.ConnectedUser;
@@ -31,7 +31,6 @@ public class SendMessageController implements ActionListener {
         @param tcpClient: TCP client to send the message
      */
     public SendMessageController(String usernameSelectedChat, PlaceholderTextField messageToSendField, TCPClient tcpClient) {
-        super();
         this.usernameSelectedChat = usernameSelectedChat;
         this.placeholderTextField = messageToSendField;
         this.tcpClient = tcpClient;
@@ -45,7 +44,7 @@ public class SendMessageController implements ActionListener {
         ConnectedUser connectedUserSelected = ConnectedUserList.getInstance().getConnectedUser(usernameSelectedChat);
 
         // Make message
-        tcpClient.sendMessage(new TCPMessage(UUID.randomUUID(), placeholderTextField.getText(), LocalDatabase.Database.currentUser, connectedUserSelected, new Timestamp(new Date().getTime())));
+        tcpClient.sendMessage(new TCPMessage(UUID.randomUUID(), placeholderTextField.getText(), DiscoveryManager.getInstance().getCurrentUser(), connectedUserSelected, new Timestamp(new Date().getTime())));
         placeholderTextField.setText("");
     }
 }

@@ -1,11 +1,11 @@
 package com.insa.gui.controller;
 
 import com.insa.gui.view.PlaceholderTextField;
-import com.insa.database.LocalDatabase;
 import com.insa.network.discovery.DiscoveryManager;
-import com.insa.users.ConnectedUser;
+import com.insa.network.discovery.UsernameAlreadyTakenException;
 import com.insa.utils.MyLogger;
 
+import javax.swing.JOptionPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -16,14 +16,14 @@ public class ChangeUsernameController implements ActionListener {
     private static final MyLogger LOGGER = new MyLogger(ChangeUsernameController.class.getName());
 
 
-    PlaceholderTextField newUsernameTextField;
+    private final PlaceholderTextField newUsernameTextField;
 
-    /*
+
+    /**
         Constructor
-        @param newUsername: textfield for new username
+        @param newUsernameTextField: textfield for new username
      */
     public ChangeUsernameController(PlaceholderTextField newUsernameTextField) {
-        super();
         this.newUsernameTextField = newUsernameTextField;
     }
 
@@ -32,9 +32,12 @@ public class ChangeUsernameController implements ActionListener {
         DiscoveryManager nwm = DiscoveryManager.getInstance();
 
         if (!newUsernameTextField.getText().isEmpty()) {
-            ConnectedUser currentUser = new ConnectedUser(LocalDatabase.Database.currentUser, LocalDatabase.Database.currentIP);
-            nwm.sendChangeUsername(currentUser, newUsernameTextField.getText());
-            LOGGER.info("ChangeUsername button clicked, request transferred to network manager");
+            try {
+                LOGGER.info("ChangeUsername button clicked, request transferred to network manager");
+                nwm.sendChangeUsername(nwm.getCurrentUser(), newUsernameTextField.getText());
+            } catch (UsernameAlreadyTakenException e) {
+                JOptionPane.showMessageDialog(null, "Username already taken:" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         } else {
             LOGGER.info("Empty textfield new username");
         }

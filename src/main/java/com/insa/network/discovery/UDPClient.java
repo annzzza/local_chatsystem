@@ -2,6 +2,7 @@ package com.insa.network.discovery;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.insa.utils.MyLogger;
 
 import java.io.IOException;
 import java.net.*;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class UDPClient {
+    private static final MyLogger LOGGER = new MyLogger(UDPClient.class.getName());
 
     private final DatagramSocket clientSocket;
 
@@ -45,6 +47,7 @@ public class UDPClient {
         try {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, sendingPort);
             clientSocket.send(packet);
+            LOGGER.info("UDP message sent to " + sendingAddress + ":" + sendingPort + ":\n" + gson.toJson(msg));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -98,6 +101,9 @@ public class UDPClient {
         }
     }
 
+    /**
+     * Close the socket
+     */
     public void close() {
         clientSocket.close();
     }
