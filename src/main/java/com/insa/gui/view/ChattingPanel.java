@@ -1,7 +1,7 @@
 package com.insa.gui.view;
 
 import com.insa.database.HistoryDAO;
-import com.insa.database.LocalDatabase;
+import com.insa.gui.controller.AddMessageToHistory;
 import com.insa.gui.controller.SendMessageController;
 import com.insa.network.tcp.TCPClient;
 import com.insa.network.tcp.TCPMessage;
@@ -43,7 +43,7 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         @param usernameSelectedChat: username of the user we want to send a message to
         @param tcpServer: TCP server to receive messages
      */
-    public ChattingPanel(String usernameSelectedChat, String usernameSelf, TCPServer tcpServer){
+    public ChattingPanel(String usernameSelectedChat, String usernameSelf){
         super();
         this.usernameSelectedChat = usernameSelectedChat;
         this.usernameSelf = usernameSelf;
@@ -55,8 +55,8 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         setTcpClient();
 
         // Add observers
-        tcpServer.addObserver(this);
         tcpClient.addObserver(this);
+        tcpClient.addObserver(new AddMessageToHistory());
 
         // Set layout
         setLayout(new BorderLayout(10,10));
@@ -203,14 +203,6 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         LOGGER.info("in function onNewMessage:");
         //Add message to history panel
         addMessage(message);
-        //Add message to history DB
-        try{
-            historyDAO.addToHistoryDB(message);
-            LOGGER.info("successfully added msg in DB");
-        } catch (SQLException e){
-            LOGGER.severe("SQL Error: " + e.getMessage());
-            LOGGER.severe("Message was not added to DB");
-        }
     }
     /*
         * Update history of messages when sending a message
@@ -221,13 +213,6 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         LOGGER.info("in function sendMessage:");
         //Add message to history panel
         addMessage(message);
-        //Add message to history DB
-        try{
-            historyDAO.addToHistoryDB(message);
-            LOGGER.info("successfully added msg in DB");
-        } catch (SQLException e){
-            LOGGER.severe("SQL Error: " + e.getMessage());
-            LOGGER.severe("Message was not added to DB");
-        }
     }
+
 }
