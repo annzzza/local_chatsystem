@@ -7,7 +7,6 @@ import java.sql.*;
 public class Database {
 
     private static final MyLogger LOGGER = new MyLogger(Database.class.getName());
-
     private static final String DB_DRIVER = "org.sqlite.JDBC";
 
     public synchronized static Connection getDBConnection() {
@@ -15,10 +14,13 @@ public class Database {
         try {
             Class.forName(DB_DRIVER);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            LOGGER.severe("Database driver was not found: " + e);
         }
         try {
-            con = DriverManager.getConnection("jdbc:sqlite:history.db");
+            String dbpath = "history.db";
+            String dbpathtest = "/tmp/history.db";
+
+            con = DriverManager.getConnection("jdbc:sqlite:" + dbpathtest);
 
         } catch (SQLException e) {
             LOGGER.severe("Connection to database failed.");

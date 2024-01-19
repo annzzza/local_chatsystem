@@ -46,7 +46,7 @@ public class DiscoveryController implements UDPServer.Observer {
 
     @Override
     public void onUsernameChanged(ConnectedUser user, String newUsername) {
-        if (ConnectedUserList.getInstance().changeUsername(user, newUsername)) {
+        if (!ConnectedUserList.getInstance().changeUsername(user, newUsername)) {
             LOGGER.info("Username already used in connectedUserList, has not been updated.");
         } else {
             LOGGER.info(String.format("Username has been changed in connectedUserList: %s\n", newUsername));
