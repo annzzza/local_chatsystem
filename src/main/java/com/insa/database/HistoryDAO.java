@@ -123,10 +123,12 @@ public class HistoryDAO {
     public ArrayList<TCPMessage> getHistoryWith(User selectedUser, User self) throws SQLException {
         LOGGER.info("Getting history with " + selectedUser.getUsername() + " for user " + self.getUsername());
         ArrayList<TCPMessage> res = new ArrayList<>();
-        String query = "SELECT * from message_history WHERE (sender_username = ? or receiver_username = ?) ORDER BY date;";
+        String query = "SELECT * from message_history WHERE (sender_username = ? and receiver_username = ? or sender_username = ? and receiver_username = ?) ORDER BY date;";
         PreparedStatement ps = con.prepareStatement(query);
         ps.setString(1, selectedUser.getUsername());
-        ps.setString(2, selectedUser.getUsername());
+        ps.setString(2, self.getUsername());
+        ps.setString(3, self.getUsername());
+        ps.setString(4, selectedUser.getUsername());
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             if (rs.getString("sender_username").equals(self.getUsername())) {
