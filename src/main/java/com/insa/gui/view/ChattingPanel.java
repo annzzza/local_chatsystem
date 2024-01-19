@@ -13,6 +13,10 @@ import com.insa.utils.Constants;
 import com.insa.utils.MyLogger;
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -25,8 +29,6 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
 
     private static final MyLogger LOGGER = new MyLogger(ChattingPanel.class.getName());
 
-    private JPanel historyReceivedMessage;
-    private JPanel historySentMessage;
     private final Color whiteBackground = new Color(242, 241, 235);
 
     private final TCPClient tcpClient = new TCPClient();
@@ -35,6 +37,7 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
 
     private final String usernameSelf;
 
+    private JTextPane historyPane;
 
     private final HistoryDAO historyDAO;
 
@@ -84,7 +87,6 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
             tcpClient.startConnection(ip, Constants.TCP_SERVER_PORT);
         } catch (IOException e) {
             LOGGER.severe("Error while starting TCP client: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -109,14 +111,10 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         BorderLayout bdl = new BorderLayout(10, 10);
         historyPanel.setLayout(bdl);
 
-        historyReceivedMessage = new JPanel();
-        historySentMessage = new JPanel();
-        historyReceivedMessage.setBackground(whiteBackground);
-        historySentMessage.setBackground(whiteBackground);
-        historyReceivedMessage.setLayout(new BoxLayout(historyReceivedMessage, BoxLayout.Y_AXIS));
-        historySentMessage.setLayout(new BoxLayout(historySentMessage, BoxLayout.Y_AXIS));
+        historyPane = new JTextPane();
+        historyPane.setBackground(whiteBackground);
 
-        // TODO: Load history
+        // Load history
         try {
             ArrayList<TCPMessage> historyList = historyDAO.getHistoryWith(connectedUserSelected, new User(usernameSelf));
             for (TCPMessage message : historyList){
@@ -129,11 +127,7 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         }
 
 
-        historyPanel.add(historyReceivedMessage, BorderLayout.WEST);
-        historyPanel.add(historySentMessage, BorderLayout.EAST);
-        historyPanel.setBackground(whiteBackground);
-        JScrollPane historyScrollPane = new JScrollPane(historyPanel);
-
+        JScrollPane historyScrollPane = new JScrollPane(historyPane);
         add(historyScrollPane, BorderLayout.CENTER);
     }
 
@@ -166,32 +160,41 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
     private void addMessage(TCPMessage message) {
         LOGGER.info("in function addMessage:");
 
-        // If message is sent by the user selected in the left panel
-        if (message.sender().getUsername().equals(usernameSelectedChat)) {
-            LOGGER.info("Display message received from " + message.sender().getUsername() + " in chat with " + usernameSelectedChat + ": " + message.content() + " at " + message.date());
-            // Add message to history of received messages
-            historyReceivedMessage.add(new JLabel("<html> " + message.content() + "<br/>" + message.date() + "</html>"));
-            historyReceivedMessage.add(new JLabel(("<html><br/><br/></html>")));
+        // Create a StyledDocument for the JTextPane
+        StyledDocument doc = historyPane.getStyledDocument();
 
-            // We add empty labels to keep the same size as the sent messages
-            historySentMessage.add(new JLabel(("<html><br/><br/></html>")));
-            historySentMessage.add(new JLabel(("<html><br/><br/></html>")));
-
-        }
         // If message is received by the user selected in the left panel
-        else if (message.receiver().getUsername().equals(usernameSelectedChat)) {
-            LOGGER.info("Display message sent to " + message.receiver().getUsername() + " in chat with " + usernameSelectedChat + ": " + message.content() + " at " + message.date());
-            // Add message to history panel of sent messages
-            historySentMessage.add(new JLabel("<html> " + message.content() + "<br/>" + message.date() + "</html>"));
-            historySentMessage.add(new JLabel(("<html><br/><br/></html>")));
+        if (message.receiver().getUsername().equals(usernameSelectedChat)) {
+            LOGGER.info("Display message received from " + message.sender().getUsername() + " in chat with " + usernameSelectedChat + ": " + message.content() + " at " + message.date());
 
-            // We add empty labels to keep the same size as the received messages
-            historyReceivedMessage.add(new JLabel(("<html><br/><br/></html>")));
-            historyReceivedMessage.add(new JLabel(("<html><br/><br/></html>")));
+            // Style for right-aligned text
+            SimpleAttributeSet rightAlign = new SimpleAttributeSet();
+            StyleConstants.setAlignment(rightAlign, StyleConstants.ALIGN_RIGHT);
+            doc.setParagraphAttributes(doc.getLength(), 1, rightAlign, false);
+
+            // Append the message content to the document with right alignment
+            try {
+                doc.insertString(doc.getLength(), message.content() + "\n" + message.date() + "\n", rightAlign);
+            } catch (BadLocationException e) {
+                LOGGER.severe("Exception while inserting message : " + e.getMessage());
+            }
+
+        } else if (message.sender().getUsername().equals(usernameSelectedChat)) {
+            LOGGER.info("Display message sent to " + message.receiver().getUsername() + " in chat with " + usernameSelectedChat + ": " + message.content() + " at " + message.date());
+
+            // Style for left-aligned text
+            SimpleAttributeSet leftAlign = new SimpleAttributeSet();
+            StyleConstants.setAlignment(leftAlign, StyleConstants.ALIGN_LEFT);
+            doc.setParagraphAttributes(doc.getLength(), 1, leftAlign, false);
+
+
+            // Append the message content to the document with left alignment
+            try {
+                doc.insertString(doc.getLength(), message.content() + "\n" + message.date() + "\n", leftAlign);
+            } catch (BadLocationException e) {
+                LOGGER.severe("Exception while inserting message : " + e.getMessage());
+            }
         }
-        // Refresh history panel
-        historySentMessage.revalidate();
-        historySentMessage.repaint();
     }
 
     /*
