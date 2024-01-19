@@ -33,7 +33,7 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
 
     private final TCPClient tcpClient = new TCPClient();
 
-    final private String usernameSelectedChat;
+    private String usernameSelectedChat;
 
     private final ConnectedUser connectedUserSelected;
 
@@ -43,14 +43,32 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
 
     /**
         Constructor
-        @param usernameSelectedChat: username of the user we want to send a message to
+        @param usernameSelected: username of the user we want to send a message to
      */
-    public ChattingPanel(String usernameSelectedChat){
+    public ChattingPanel(String usernameSelected){
         super();
-        this.usernameSelectedChat = usernameSelectedChat;
+        this.usernameSelectedChat = usernameSelected;
         this.historyDAO = new HistoryDAO();
 
         connectedUserSelected = ConnectedUserList.getInstance().getConnectedUser(usernameSelectedChat);
+
+        ConnectedUserList cul = ConnectedUserList.getInstance();
+        cul.addObserver(new ConnectedUserList.Observer() {
+            @Override
+            public void newConnectedUser(ConnectedUser connectedUser) {
+
+            }
+
+            @Override
+            public void removeConnectedUser(ConnectedUser connectedUser) {
+
+            }
+
+            @Override
+            public void usernameChanged(ConnectedUser newConnectedUser, String previousUsername) {
+                usernameSelectedChat = newConnectedUser.getUsername();
+            }
+        });
 
         // Set up connection between TCP client and TCP server
         setTcpClient();
