@@ -105,7 +105,7 @@ public class ConnectedUserList implements Iterable<ConnectedUser> {
      * @throws ConnectedUserAlreadyExists If the user already exists in the list
      */
     public synchronized void addConnectedUser(ConnectedUser connectedUser) throws ConnectedUserAlreadyExists {
-        LOGGER.info("Adding connected user");
+        LOGGER.info("Adding connected user:\n" + connectedUser);
         if (hasUsername(connectedUser.getUsername())) {
             throw new ConnectedUserAlreadyExists(connectedUser);
         } else {
@@ -123,7 +123,7 @@ public class ConnectedUserList implements Iterable<ConnectedUser> {
      * @return True if the username has been changed, false otherwise
      */
     public synchronized boolean changeUsername(ConnectedUser user, String newUsername) {
-        LOGGER.info("Changing username");
+        LOGGER.info("Trying to change username from " + user.getUsername() + " to " + newUsername );
         if (connectedUsers.stream().anyMatch(u -> u.getUsername().equals(newUsername))) {
             return false;
         } else {
@@ -172,7 +172,7 @@ public class ConnectedUserList implements Iterable<ConnectedUser> {
      * @return True if the username is already used, false otherwise
      */
     public synchronized boolean hasUsername(String username) {
-        LOGGER.info("Checking if username exists");
+        LOGGER.info("Checking if username \"" + username + "\" exists");
         for (ConnectedUser connectedUser : this.connectedUsers) {
             if (connectedUser.getUsername().equals(username)) {
                 return true;
@@ -185,7 +185,7 @@ public class ConnectedUserList implements Iterable<ConnectedUser> {
      * Checks if a connected user is already in the list of connected users
      */
     public synchronized boolean contains(ConnectedUser connectedUser) {
-        LOGGER.info("Checking if connected user exists");
+        LOGGER.info("Checking if connected user with username \"" + connectedUser.getUsername() + "\" exists");
         return this.connectedUsers.contains(connectedUser);
     }
 
