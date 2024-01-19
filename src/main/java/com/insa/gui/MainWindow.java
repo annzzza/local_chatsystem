@@ -97,7 +97,7 @@ public class MainWindow {
                 if (listChats.getSelectedValue() != null) {
                     String usernameSelectedChat = listChats.getSelectedValue().toString();
                     LOGGER.info("creating chatting pannel from contact list");
-                    ChattingPanel chattingPanel = new ChattingPanel(usernameSelectedChat, username);
+                    ChattingPanel chattingPanel = new ChattingPanel(usernameSelectedChat);
                     tcpServer.addObserver(chattingPanel);
                     jSplitPane.setRightComponent(chattingPanel);
                 } else {

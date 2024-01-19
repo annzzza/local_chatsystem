@@ -20,7 +20,6 @@ public class ChangeUsernameController implements ActionListener {
 
 
     private final PlaceholderTextField newUsernameTextField;
-    private String oldUsername;
     private final HistoryDAO historyDAO = new HistoryDAO();
 
 
@@ -28,10 +27,9 @@ public class ChangeUsernameController implements ActionListener {
         Constructor
         @param newUsernameTextField: textfield for new username
      */
-    public ChangeUsernameController(PlaceholderTextField newUsernameTextField, String username) {
+    public ChangeUsernameController(PlaceholderTextField newUsernameTextField) {
         super();
         this.newUsernameTextField = newUsernameTextField;
-        this.oldUsername = username;
     }
 
     @Override
@@ -41,10 +39,11 @@ public class ChangeUsernameController implements ActionListener {
         if (!newUsernameTextField.getText().isEmpty()) {
             try {
                 LOGGER.info("ChangeUsername button clicked, request transferred to network manager");
-                nwm.sendChangeUsername(nwm.getCurrentUser(), newUsernameTextField.getText());
+                User oldUser = nwm.getCurrentUser();
+                nwm.sendChangeUsername(oldUser, newUsernameTextField.getText());
 
                 // Add to history
-                historyDAO.updateHistoryDB(new User(oldUsername), nwm.getCurrentUser().getUsername());
+                historyDAO.updateHistoryDB(oldUser, nwm.getCurrentUser().getUsername());
                 LOGGER.fine("History updated with new username: " + nwm.getCurrentUser().getUsername());
             } catch (UsernameAlreadyTakenException e) {
                 LOGGER.severe("Username already taken. Not changed.");
