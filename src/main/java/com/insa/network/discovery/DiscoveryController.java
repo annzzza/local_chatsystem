@@ -1,18 +1,14 @@
 package com.insa.network.discovery;
 
-import com.insa.database.HistoryDAO;
 import com.insa.database.LocalDatabase;
 import com.insa.users.ConnectedUser;
 import com.insa.users.ConnectedUserAlreadyExists;
 import com.insa.users.ConnectedUserList;
 import com.insa.utils.MyLogger;
 
-import java.sql.SQLException;
-
 public class DiscoveryController implements UDPServer.Observer {
 
     private static final MyLogger LOGGER = new MyLogger(DiscoveryController.class.getName());
-    private HistoryDAO historyDAO = new HistoryDAO();
 
     private void displayConnectedUsers() {
         LOGGER.info("Connected users:");
@@ -54,12 +50,6 @@ public class DiscoveryController implements UDPServer.Observer {
             LOGGER.info("Username already used in connectedUserList, has not been updated.");
         } else {
             LOGGER.info(String.format("Username has been changed in connectedUserList: %s\n", newUsername));
-            try {
-                historyDAO.updateHistoryDB(user, newUsername);
-            } catch (SQLException e) {
-                LOGGER.severe("Could not update history on Received changeUsernameMessage for: " + newUsername);
-                //throw new RuntimeException(e);
-            }
         }
         displayConnectedUsers();
     }

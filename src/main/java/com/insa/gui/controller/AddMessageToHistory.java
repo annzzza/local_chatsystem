@@ -16,35 +16,34 @@ public class AddMessageToHistory  implements TCPClient.TCPClientObserver, TCPSer
 
     private final HistoryDAO historyDAO = new HistoryDAO();
 
-    /**
-     * Update history when a message is sent
-     * @param message the message that was sent
-     */
-    @Override
-    public void sendMessage(TCPMessage message) {
+    private void messageToDB(TCPMessage message) {
         //Add message to history DB
-        try{
+        try {
             historyDAO.addToHistoryDB(message);
             LOGGER.info("successfully added msg in DB");
-        } catch (SQLException e){
+        } catch (SQLException e) {
             LOGGER.severe("SQL Error: " + e.getMessage());
             LOGGER.severe("Message was not added to DB");
         }
     }
 
     /**
+     * Update history when a message is sent
+     *
+     * @param message the message that was sent
+     */
+    @Override
+    public void sendMessage(TCPMessage message) {
+        messageToDB(message);
+    }
+
+    /**
      * Update history on a received message
+     *
      * @param message received message
      */
     @Override
     public void onNewMessage(TCPMessage message) {
-        //Add message to history DB
-        try{
-            historyDAO.addToHistoryDB(message);
-            LOGGER.info("successfully added msg in DB");
-        } catch (SQLException e){
-            LOGGER.severe("SQL Error: " + e.getMessage());
-            LOGGER.severe("Message was not added to DB");
-        }
+        messageToDB(message);
     }
 }

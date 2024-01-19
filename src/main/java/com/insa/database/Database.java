@@ -14,7 +14,7 @@ public class Database {
         try {
             Class.forName(DB_DRIVER);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            LOGGER.severe("Database driver was not found: " + e);
         }
         try {
             String dbpath = "history.db";

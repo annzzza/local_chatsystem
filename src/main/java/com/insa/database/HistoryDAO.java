@@ -20,17 +20,21 @@ public class HistoryDAO {
                 Database.createTables(con);}
         } catch (SQLException e) {
             LOGGER.severe("Tables could not be created");
-            throw new RuntimeException(e);
         }
     }
 
-    public static boolean doesTableExist(Connection connection, String tableName) throws SQLException {
+    public static boolean doesTableExist(Connection connection, String tableName) {
         String query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, tableName);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 return resultSet.next(); // If the result set has at least one row, the table exists
+            } catch (SQLException e){
+                LOGGER.severe("No table found");
+                return false;
             }
+        } catch (SQLException e) {
+            return false;
         }
     }
     /**

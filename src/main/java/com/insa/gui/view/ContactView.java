@@ -1,6 +1,7 @@
 package com.insa.gui.view;
 
 import com.google.gson.Gson;
+import com.insa.database.UpdateUsernameInDB;
 import com.insa.users.ConnectedUser;
 import com.insa.users.ConnectedUserList;
 import com.insa.utils.MyLogger;
@@ -18,6 +19,7 @@ public class ContactView extends DefaultListModel<String> implements ConnectedUs
             contactView.addElement(connectedUser.getUsername());
         }
         connectedUserList.addObserver(contactView);
+        connectedUserList.addObserver(new UpdateUsernameInDB());
     }
 
     public static ContactView getInstance() {
