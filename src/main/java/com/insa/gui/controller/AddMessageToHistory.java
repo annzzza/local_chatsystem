@@ -14,7 +14,12 @@ import java.sql.SQLException;
 public class AddMessageToHistory  implements TCPClient.TCPClientObserver, TCPServer.TCPServerObserver {
     private static final MyLogger LOGGER = new MyLogger(AddMessageToHistory.class.getName());
 
-    private HistoryDAO historyDAO = new HistoryDAO();
+    private final HistoryDAO historyDAO = new HistoryDAO();
+
+    /**
+     * Update history when a message is sent
+     * @param message the message that was sent
+     */
     @Override
     public void sendMessage(TCPMessage message) {
         //Add message to history DB
@@ -27,6 +32,10 @@ public class AddMessageToHistory  implements TCPClient.TCPClientObserver, TCPSer
         }
     }
 
+    /**
+     * Update history on a received message
+     * @param message received message
+     */
     @Override
     public void onNewMessage(TCPMessage message) {
         //Add message to history DB

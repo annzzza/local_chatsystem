@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-/*
-   Panel for chatting with a user
+/**
+   Panel that displays history with selected user and allows to send messages.
  */
 public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver, TCPClient.TCPClientObserver {
 
@@ -32,7 +32,9 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
     private final Color whiteBackground = new Color(242, 241, 235);
 
     private final TCPClient tcpClient = new TCPClient();
+
     final private String usernameSelectedChat;
+
     private final ConnectedUser connectedUserSelected;
 
     private final String usernameSelf;
@@ -41,10 +43,10 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
 
     private final HistoryDAO historyDAO;
 
-    /*
+    /**
         Constructor
         @param usernameSelectedChat: username of the user we want to send a message to
-        @param tcpServer: TCP server to receive messages
+        @param usernameSelf: username of self
      */
     public ChattingPanel(String usernameSelectedChat, String usernameSelf){
         super();
@@ -70,7 +72,7 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         makeBottomMenu();
     }
 
-    /*
+    /**
         Set up connection between TCP client and TCP server
      */
     private void setTcpClient() {
@@ -90,7 +92,7 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         }
     }
 
-    /*
+    /**
         Make top panel with the name of the user we are chatting with
      */
     private void makeTopPanel() {
@@ -102,7 +104,7 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         add(topPanel, BorderLayout.NORTH);
     }
 
-    /*
+    /**
         Make center panel with the history of messages sent and received
      */
     private void makeCenterPanel() {
@@ -131,7 +133,7 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         add(historyScrollPane, BorderLayout.CENTER);
     }
 
-    /*
+    /**
         Make bottom menu with the message text field and the send button
      */
     private void makeBottomMenu() {
@@ -153,9 +155,9 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         add(bottomMenu, BorderLayout.SOUTH);
     }
 
-    /*
+    /**
         Add message content and date to the panel it belongs
-        @param message TCPmessage either sent or received by the selected user
+        @param message message either sent or received by the selected user
      */
     private void addMessage(TCPMessage message) {
         LOGGER.info("in function addMessage:");
@@ -197,9 +199,9 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         }
     }
 
-    /*
-        * Update history of messages when receiving a message
-        * @param message to be added to history
+    /**
+        * TCPServer handler on new message received
+        * @param message to be processed
      */
     @Override
     public void onNewMessage(TCPMessage message) {
@@ -207,6 +209,11 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         //Add message to history panel
         addMessage(message);
     }
+
+    /**
+     * TCPClient handler for messages sent
+     * @param message the message that was sent
+     */
     /*
         * Update history of messages when sending a message
         * @param message to be added to history
