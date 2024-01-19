@@ -1,6 +1,5 @@
 package com.insa.users;
 
-import com.insa.network.discovery.UDPClient;
 import com.insa.utils.MyLogger;
 
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ import java.util.List;
  */
 public class ConnectedUserList implements Iterable<ConnectedUser> {
 
-    private static final MyLogger LOGGER = new MyLogger(UDPClient.class.getName());
+    private static final MyLogger LOGGER = new MyLogger(ConnectedUserList.class.getName());
 
     /**
      * Iterator for the list of connected users (used to iterate over the list)
