@@ -1,5 +1,6 @@
 package com.insa.gui;
 
+import com.insa.gui.controller.AddMessageToHistory;
 import com.insa.gui.controller.ChangeUsernameController;
 import com.insa.gui.controller.DisconnectionController;
 import com.insa.gui.view.ChattingPanel;
@@ -89,20 +90,23 @@ public class MainWindow {
         listChats.setFixedCellHeight(48);
         listChats.setBackground(whiteBackground);
 
+
         //Right panel displays the chat (history+send message) with selected user from left panel
         listChats.addListSelectionListener(e -> {
-            if(listChats.getSelectedValue() != null) {
-                String usernameSelectedChat = listChats.getSelectedValue().toString();
-                ChattingPanel chattingPanel = new ChattingPanel(usernameSelectedChat, tcpServer);
-                jSplitPane.setRightComponent(chattingPanel);
-            } else {
-                Label defaultRightPanel = new Label("Select a user to chat with!");
-                defaultRightPanel.setBackground(whiteBackground);
-                jSplitPane.setRightComponent(defaultRightPanel);
+            if (!e.getValueIsAdjusting()) {
+                if (listChats.getSelectedValue() != null) {
+                    String usernameSelectedChat = listChats.getSelectedValue().toString();
+                    LOGGER.info("creating chatting pannel from contact list");
+                    ChattingPanel chattingPanel = new ChattingPanel(usernameSelectedChat, username);
+                    tcpServer.addObserver(chattingPanel);
+                    jSplitPane.setRightComponent(chattingPanel);
+                } else {
+                    Label defaultRightPanel = new Label("Select a user to chat with!");
+                    defaultRightPanel.setBackground(whiteBackground);
+                    jSplitPane.setRightComponent(defaultRightPanel);
+                }
             }
         });
-
-        //chatItemList.addElement("jonan");
 
         jSplitPane.setLeftComponent(new JScrollPane(listChats));
         //Default right panel
@@ -125,8 +129,9 @@ public class MainWindow {
             tcpServer = new TCPServer(Constants.TCP_SERVER_PORT);
             tcpServer.start();
 
-            // Add observer to TCP server
+            // Add observers for incoming messages to TCP server
             tcpServer.addObserver((message) -> LOGGER.info("Received message: " + message));
+            tcpServer.addObserver(new AddMessageToHistory());
 
             window.addWindowListener(new WindowAdapter() {
                 @Override

@@ -81,7 +81,7 @@ public class LoginWindow {
 
             enterButton.setVisible(false);
             MainWindow mainWindow = new MainWindow();
-            mainWindow.start();
+            mainWindow.start(username);
 
             // Close login window
             window.dispose();
