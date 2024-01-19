@@ -5,8 +5,8 @@ import com.insa.gui.controller.ChangeUsernameController;
 import com.insa.gui.controller.DisconnectionController;
 import com.insa.gui.view.ChattingPanel;
 import com.insa.gui.view.ContactView;
-import com.insa.database.LocalDatabase;
 import com.insa.gui.view.PlaceholderTextField;
+import com.insa.network.discovery.DiscoveryManager;
 import com.insa.network.tcp.TCPServer;
 import com.insa.utils.Constants;
 import com.insa.utils.MyLogger;
@@ -22,8 +22,8 @@ import java.awt.event.WindowEvent;
 public class MainWindow {
     private static final MyLogger LOGGER = new MyLogger(MainWindow.class.getName());
 
-    private String username;
-    private final JFrame window = new JFrame("Clavardages" + " - " + LocalDatabase.Database.currentUser.getUsername());
+
+    private final JFrame window = new JFrame("Clavardages" + " - " + DiscoveryManager.getInstance().getCurrentUser().getUsername());
 
     private final Color whiteBackground = new Color(242, 241, 235);
 
@@ -49,7 +49,7 @@ public class MainWindow {
         // Text field for new username
         PlaceholderTextField changeUsernameTextField = new PlaceholderTextField();
         changeUsernameTextField.setPlaceholder("New Username");
-        ChangeUsernameController changeUsernameController = new ChangeUsernameController(changeUsernameTextField, username);
+        ChangeUsernameController changeUsernameController = new ChangeUsernameController(changeUsernameTextField);
         menuBar.add(changeUsernameTextField);
 
         // Button for changing username
@@ -97,7 +97,7 @@ public class MainWindow {
                 if (listChats.getSelectedValue() != null) {
                     String usernameSelectedChat = listChats.getSelectedValue().toString();
                     LOGGER.info("creating chatting pannel from contact list");
-                    ChattingPanel chattingPanel = new ChattingPanel(usernameSelectedChat, username);
+                    ChattingPanel chattingPanel = new ChattingPanel(usernameSelectedChat);
                     tcpServer.addObserver(chattingPanel);
                     jSplitPane.setRightComponent(chattingPanel);
                 } else {
@@ -118,10 +118,10 @@ public class MainWindow {
         window.add(jSplitPane, BorderLayout.CENTER);
     }
 
-    public void start(String username) {
+    public void start() {
         //ImageIcon img = new ImageIcon("src/main/java/com/insa/GUI/iconChatSystem.png");
         //window.setIconImage(img.getImage());
-        this.username = username;
+
 
         // Start TCP server
         try {
@@ -162,6 +162,6 @@ public class MainWindow {
     }
 
     public static void main(String[] args) {
-        //SwingUtilities.invokeLater(() -> new MainWindow().start("HEIN?")); //TODO : wtf?
+        SwingUtilities.invokeLater(() -> new MainWindow().start());
     }
 }

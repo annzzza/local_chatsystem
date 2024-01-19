@@ -3,12 +3,12 @@ package com.insa.gui.view;
 import com.insa.database.HistoryDAO;
 import com.insa.gui.controller.AddMessageToHistory;
 import com.insa.gui.controller.SendMessageController;
+import com.insa.network.discovery.DiscoveryManager;
 import com.insa.network.tcp.TCPClient;
 import com.insa.network.tcp.TCPMessage;
 import com.insa.network.tcp.TCPServer;
 import com.insa.users.ConnectedUser;
 import com.insa.users.ConnectedUserList;
-import com.insa.users.User;
 import com.insa.utils.Constants;
 import com.insa.utils.MyLogger;
 
@@ -33,11 +33,9 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
 
     private final TCPClient tcpClient = new TCPClient();
 
-    final private String usernameSelectedChat;
+    private String usernameSelectedChat;
 
     private final ConnectedUser connectedUserSelected;
-
-    private final String usernameSelf;
 
     private JTextPane historyPane;
 
@@ -45,16 +43,32 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
 
     /**
         Constructor
-        @param usernameSelectedChat: username of the user we want to send a message to
-        @param usernameSelf: username of self
+        @param usernameSelected: username of the user we want to send a message to
      */
-    public ChattingPanel(String usernameSelectedChat, String usernameSelf){
+    public ChattingPanel(String usernameSelected){
         super();
-        this.usernameSelectedChat = usernameSelectedChat;
-        this.usernameSelf = usernameSelf;
+        this.usernameSelectedChat = usernameSelected;
         this.historyDAO = new HistoryDAO();
 
         connectedUserSelected = ConnectedUserList.getInstance().getConnectedUser(usernameSelectedChat);
+
+        ConnectedUserList cul = ConnectedUserList.getInstance();
+        cul.addObserver(new ConnectedUserList.Observer() {
+            @Override
+            public void newConnectedUser(ConnectedUser connectedUser) {
+
+            }
+
+            @Override
+            public void removeConnectedUser(ConnectedUser connectedUser) {
+
+            }
+
+            @Override
+            public void usernameChanged(ConnectedUser newConnectedUser, String previousUsername) {
+                usernameSelectedChat = newConnectedUser.getUsername();
+            }
+        });
 
         // Set up connection between TCP client and TCP server
         setTcpClient();
@@ -76,8 +90,6 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         Set up connection between TCP client and TCP server
      */
     private void setTcpClient() {
-       // ConnectedUser connectedUserSelected = ConnectedUserList.getInstance().getConnectedUser(usernameSelectedChat);
-
         if(connectedUserSelected == null) {
             LOGGER.info("No connected user found for username " + usernameSelectedChat);
             return;
@@ -118,7 +130,8 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
 
         // Load history
         try {
-            ArrayList<TCPMessage> historyList = historyDAO.getHistoryWith(connectedUserSelected, new User(usernameSelf));
+
+            ArrayList<TCPMessage> historyList = historyDAO.getHistoryWith(connectedUserSelected, DiscoveryManager.getInstance().getCurrentUser());
             for (TCPMessage message : historyList){
                 //Add message to history panel
                 addMessage(message);

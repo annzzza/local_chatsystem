@@ -1,8 +1,5 @@
-package com.insa.network;
+package com.insa.network.tcp;
 
-import com.insa.network.tcp.TCPClient;
-import com.insa.network.tcp.TCPMessage;
-import com.insa.network.tcp.TCPServer;
 import com.insa.users.User;
 import com.insa.utils.MyLogger;
 import org.junit.jupiter.api.Test;

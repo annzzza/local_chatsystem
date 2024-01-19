@@ -20,7 +20,7 @@ public class Database {
             String dbpath = "history.db";
             String dbpathtest = "/tmp/history.db";
 
-            con = DriverManager.getConnection("jdbc:sqlite:" + dbpathtest);
+            con = DriverManager.getConnection("jdbc:sqlite:" + dbpath);
 
         } catch (SQLException e) {
             LOGGER.severe("Connection to database failed.");

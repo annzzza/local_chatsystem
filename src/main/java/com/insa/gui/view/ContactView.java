@@ -49,10 +49,8 @@ public class ContactView extends DefaultListModel<String> implements ConnectedUs
 
     @Override
     public void usernameChanged(ConnectedUser newConnectedUser, String previousUsername) {
-        LOGGER.info("Changing username in contactView");
+        LOGGER.info("Changing username in contactView: " + previousUsername + " -> " + newConnectedUser.getUsername() );
         this.set(this.indexOf(previousUsername), newConnectedUser.getUsername());
-//        this.removeElement(previousUsername);
-//        this.addElement(newConnectedUser.getUsername());
         displayContactView();
     }
 }
