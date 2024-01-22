@@ -89,7 +89,7 @@ public class Database {
      * @param con the connection to the database
      * @throws SQLException if the tables could not be created
      */
-    public static void createTables(Connection con) throws SQLException {
+    public synchronized static void createTables(Connection con) throws SQLException {
         Statement stmt = con.createStatement();
 
         LOGGER.info("Creating tables in database");
