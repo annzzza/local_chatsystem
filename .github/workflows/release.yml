@@ -1,0 +1,65 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Release project
+
+## "[release]" in commit message triggers release job
+## By default, the release job is disabled
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: "github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[release]')"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
+      - name: Extract Maven project version
+        id: project
+        run: echo "::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
+
+      - name: Show Maven project version
+        run: echo ${{ steps.project.outputs.version }}
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ steps.project.outputs.version }}-release
+          release_name: Chat-System-Release-${{ steps.project.outputs.version }}
+          draft: false
+          prerelease: false
+          body: "Release ${{ steps.project.outputs.version }}"
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./target/chatsystem-bonnet-cazeneuve-${{steps.project.outputs.version}}-jar-with-dependencies.jar
+          asset_name: Chat-System-Release-${{ steps.project.outputs.version }}.jar
+          asset_content_type: application/jar
