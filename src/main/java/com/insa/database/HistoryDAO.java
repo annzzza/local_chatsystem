@@ -12,8 +12,31 @@ public class HistoryDAO {
 
     private static final MyLogger LOGGER = new MyLogger(HistoryDAO.class.getName());
 
-    static Connection con = Database.getDBConnection();
+    Connection con = Database.getDBConnection();
 
+    public HistoryDAO(){
+        try {
+            if (!doesTableExist(con, "message_history")) {
+                Database.createTables(con);}
+        } catch (SQLException e) {
+            LOGGER.severe("Tables could not be created");
+        }
+    }
+
+    public static boolean doesTableExist(Connection connection, String tableName) {
+        String query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, tableName);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next(); // If the result set has at least one row, the table exists
+            } catch (SQLException e){
+                LOGGER.severe("No table found");
+                return false;
+            }
+        } catch (SQLException e) {
+            return false;
+        }
+    }
     /**
      * adds a Message to the history table
      *
@@ -99,7 +122,7 @@ public class HistoryDAO {
                 ps2.close();
             }
         }catch (SQLException e){
-            throw new DAOException("Error updating history with new username", e);
+            throw new DAOException("Error updating history with new username " + newUsername, e);
         }
     }
 
@@ -115,11 +138,14 @@ public class HistoryDAO {
         LOGGER.info("Getting history with " + selectedUser.getUsername() + " for user " + self.getUsername());
 
         ArrayList<TCPMessage> res = new ArrayList<>();
-        try {
-            String query = "SELECT * from message_history WHERE (sender_username = ? or receiver_username = ?) ORDER BY date;";
+
+        try{
+            String query = "SELECT * from message_history WHERE (sender_username = ? and receiver_username = ? or sender_username = ? and receiver_username = ?) ORDER BY date;";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, selectedUser.getUsername());
-            ps.setString(2, selectedUser.getUsername());
+            ps.setString(2, self.getUsername());
+            ps.setString(3, self.getUsername());
+            ps.setString(4, selectedUser.getUsername());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 if (rs.getString("sender_username").equals(self.getUsername())) {
@@ -130,9 +156,9 @@ public class HistoryDAO {
                     res.add(msg);
                 }
             }
-        } catch (SQLException e){
+            } catch (SQLException e ){
             throw new DAOException("Error retrieving history with " + selectedUser.getUsername(), e);
-        }
+            }
         return res;
     }
 

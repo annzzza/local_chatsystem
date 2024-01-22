@@ -1,7 +1,7 @@
 package com.insa.gui;
 
 import com.insa.network.discovery.DiscoveryManager;
-import com.insa.users.ConnectedUserList;
+import com.insa.network.discovery.UsernameAlreadyTakenException;
 import com.insa.utils.MyLogger;
 
 import javax.swing.*;
@@ -73,13 +73,9 @@ public class LoginWindow {
         LOGGER.info("Begin client discovery");
 
         String username = inputUsername.getText();
-        nwm.discoverNetwork(username);
+        try{
+            nwm.discoverNetwork(username);
 
-        LOGGER.info("Checking whether the username is already taken...");
-        if (ConnectedUserList.getInstance().hasUsername(username)) {
-            chooseOtherUsernameLabel.setForeground(Color.RED);
-            chooseOtherUsernameLabel.setText("Username not available, please choose a new one.");
-        } else {
             chooseOtherUsernameLabel.setForeground(Color.GREEN);
             chooseOtherUsernameLabel.setText("Connected");
 
@@ -89,6 +85,10 @@ public class LoginWindow {
 
             // Close login window
             window.dispose();
+
+        }  catch (UsernameAlreadyTakenException e) {
+            chooseOtherUsernameLabel.setForeground(Color.RED);
+            chooseOtherUsernameLabel.setText("Username not available, please choose a new one.");
         }
     }
 }

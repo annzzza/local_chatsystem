@@ -6,8 +6,6 @@ import java.util.*;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.insa.database.LocalDatabase;
-import com.insa.users.ConnectedUser;
 import com.insa.utils.Constants;
 import com.insa.utils.MyLogger;
 
@@ -24,30 +22,7 @@ public class UDPServer extends Thread {
      * This interface is used to notify the observers of the server when a new user connects, changes their username or disconnects
      */
     public interface Observer {
-        /**
-         * Called when a new user connects
-         * @param user The user that connected
-         */
-        void onNewUserConnected(ConnectedUser user);
-
-        /**
-         * Called when a user answers to a discovery message
-         * @param user The user that answered
-         */
-        void onAnswerReceived(ConnectedUser user);
-
-        /**
-         * Called when a user changes their username
-         * @param user The user that changed their username
-         * @param newUsername The new username of the user
-         */
-        void onUsernameChanged(ConnectedUser user, String newUsername);
-
-        /**
-         * Called when a user disconnects
-         * @param user The user that disconnected
-         */
-        void onUserDisconnected(ConnectedUser user);
+        void handleMessage(UDPMessage message);
     }
 
     /**
@@ -68,6 +43,7 @@ public class UDPServer extends Thread {
 
     /**
      * Adds a new observer to the class
+     *
      * @param observer The observer to add
      */
     public void addObserver(Observer observer) {
@@ -79,84 +55,21 @@ public class UDPServer extends Thread {
 
     /**
      * No-arg constructor
+     *
      * @throws SocketException if an error occurs while creating the server socket (e.g. if the port is already used)
      */
     public UDPServer(int port) throws SocketException {
         serverSocket = new DatagramSocket(port);
-    }
-
-
-    /**
-     * Processes the data received by the server
-     * @param data Raw data received
-     * @param address Address of the sender
-     */
-    public void dataProcessing(String data, InetAddress address) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-        UDPMessage receivedMessage = gson.fromJson(data, UDPMessage.class);
-        LOGGER.info("Message received: \n" + gson.toJson(receivedMessage));
-
-        switch (receivedMessage.getType()) {
-            case DISCOVERY -> {
-                LOGGER.info("Discovery message received.");
-
-                // New user connected
-                ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
-                synchronized (observerList) {
-                    for (Observer observer : observerList) {
-                        LOGGER.info("Notifying observer that new user connected: " + user);
-                        observer.onNewUserConnected(user);
-                    }
-                }
-
-                // Send back that we are connected
-                try {
-                    UDPMessage answer = new UDPMessage(UDPMessage.MessageType.USER_CONNECTED,"" , LocalDatabase.Database.currentUser);
-                    byte[] buffer = (gson.toJson(answer)).getBytes();
-                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, Constants.UDP_SERVER_PORT);
-                    serverSocket.send(packet);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            case USER_CONNECTED -> {
-                LOGGER.info("User connected message received.");
-                ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
-                synchronized (observerList) {
-                    for (Observer observer : observerList) {
-                        LOGGER.info("Notifying observer that new user connected: " + user);
-                        observer.onAnswerReceived(user);
-                    }
-                }
-            }
-            case USERNAME_CHANGED -> {
-                LOGGER.info("Username changed message received.");
-                ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
-                synchronized (observerList) {
-                    for (Observer observer : observerList) {
-                        LOGGER.info("Notifying observer that username changed: " + user + " to " + receivedMessage.getContent());
-                        observer.onUsernameChanged(user, receivedMessage.getContent());
-                    }
-                }
-            }
-            case USER_DISCONNECTED -> {
-                LOGGER.info("User disconnected message received.");
-                ConnectedUser user = new ConnectedUser(receivedMessage.getSender(), address);
-                synchronized (observerList) {
-                    for (Observer observer : observerList) {
-                        LOGGER.info("Notifying observer that user disconnected: " + user);
-                        observer.onUserDisconnected(user);
-                    }
-                }
-            }
-        }
+        running = true;
+        LOGGER.info("UDPServer created on " + serverSocket.getLocalAddress() + ":" + serverSocket.getLocalPort());
     }
 
     @Override
     public void run() {
 
+        LOGGER.info("UDPServer started");
         while (running) {
+            LOGGER.info("UDPServer running");
             try {
                 byte[] buffer = new byte[Constants.MAX_UDP_PACKET_SIZE];
                 DatagramPacket receivedPacket = new DatagramPacket(buffer, buffer.length);
@@ -170,16 +83,31 @@ public class UDPServer extends Thread {
 
                 // Check if the message is not from the server itself
                 if (Objects.requireNonNull(getAllCurrentIp()).contains(receivedAddress)) {
-                    LOGGER.info("Message from server itself ignored.");
+                    LOGGER.info("All current IP: " + getAllCurrentIp());
+                    LOGGER.info("Message from server (" + receivedAddress + ")" + " itself ignored:\n" + receivedString);
                     continue;
                 }
 
-                dataProcessing(receivedString, receivedAddress);
+                // Deserialize the message
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                UDPMessage receivedMessage = gson.fromJson(receivedString, UDPMessage.class);
+                receivedMessage.setSenderIP(receivedAddress);
+                LOGGER.info("Message received: \n" + gson.toJson(receivedMessage));
+
+                // Notify the observers
+                synchronized (observerList) {
+                    for (Observer observer : observerList) {
+                        observer.handleMessage(receivedMessage);
+                        LOGGER.info("Message sent to observer");
+                    }
+                }
 
             } catch (IOException e) {
+                LOGGER.severe("Error while receiving UDP message: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }
+        LOGGER.info("UDPServer stopped");
         serverSocket.close();
     }
 
@@ -210,7 +138,7 @@ public class UDPServer extends Thread {
     /**
      * Closes the server socket
      */
-    public static void close() {
+    public void close() {
         running = false;
     }
 }
