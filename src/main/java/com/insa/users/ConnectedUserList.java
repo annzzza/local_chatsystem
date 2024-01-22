@@ -61,14 +61,23 @@ public class ConnectedUserList implements Iterable<ConnectedUser> {
     /**
      * Singleton instance of the connected user list
      */
-    private static final ConnectedUserList instance = new ConnectedUserList();
+    private static volatile ConnectedUserList instance = new ConnectedUserList();
 
     /**
-     * Getter for the singleton instance
+     * Getter for the singleton instance (Double-checked locking)
      * @return The singleton instance of the connected user list
      */
     public static ConnectedUserList getInstance() {
-        return instance;
+        ConnectedUserList result = instance;
+        if (result != null) {
+            return result;
+        }
+        synchronized (ConnectedUserList.class) {
+            if (instance == null) {
+                instance = new ConnectedUserList();
+            }
+            return instance;
+        }
     }
 
     /**
