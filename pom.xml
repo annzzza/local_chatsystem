@@ -62,7 +62,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.insa.app.Main</mainClass>
+                            <mainClass>com.insa.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -82,7 +82,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.insa.app.Main</mainClass>
+                            <mainClass>com.insa.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
