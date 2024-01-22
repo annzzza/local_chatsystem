@@ -24,8 +24,8 @@ public class TCPTests {
     void testTCPClient() throws IOException, InterruptedException {
         // Create test messages
         TCPMessage testMessage = new TCPMessage(UUID.randomUUID(), "Hello", new User("sender"), new User("receiver"), new Timestamp(new Date().getTime()));
-        TCPMessage testMessage2 = new TCPMessage(UUID.randomUUID(),"Hello \n new line", new User("sender2"), new User("receiver2"), new Timestamp(new Date().getTime()));
-        TCPMessage testMessage3 = new TCPMessage(UUID.randomUUID(),"Hello \n new line\t",  new User("sender2"), new User("receiver2"), new Timestamp(new Date().getTime()));
+        TCPMessage testMessage2 = new TCPMessage(UUID.randomUUID(), "Hello \n new line", new User("sender2"), new User("receiver2"), new Timestamp(new Date().getTime()));
+        TCPMessage testMessage3 = new TCPMessage(UUID.randomUUID(), "Hello \n new line\t", new User("sender2"), new User("receiver2"), new Timestamp(new Date().getTime()));
         List<TCPMessage> testMessages = Arrays.asList(testMessage, testMessage2, testMessage3);
 
         // Create TCP Server
@@ -37,6 +37,7 @@ public class TCPTests {
         // Create TCP Client
         TCPClient client = new TCPClient();
         client.startConnection("127.0.0.1", TEST_PORT);
+        client.addObserver(message -> LOGGER.info("[TEST] - Message received: " + message));
 
         // Send messages
         for (TCPMessage message : testMessages) {
@@ -46,12 +47,30 @@ public class TCPTests {
         // Check that the messages have been received
         Thread.sleep(100);
 
-        LOGGER.info("[TEST] - Received messages list:\n" +  receivedMessages);
+        LOGGER.info("[TEST] - Received messages list:\n" + receivedMessages);
         LOGGER.severe("HEEEY");
         assertEquals(testMessages.size(), receivedMessages.size());
         assertEquals(testMessages, receivedMessages);
 
         client.stopConnection();
         server.interrupt();
+    }
+
+    @Test
+    void testTCPMessageEquality() {
+        // Create test messages
+        UUID uuid = UUID.randomUUID();
+        String content = "Hello";
+        User sender = new User("sender");
+        User receiver = new User("receiver");
+        Timestamp date = new Timestamp(new Date().getTime());
+        TCPMessage testMessage = new TCPMessage(uuid, content, sender, receiver, date);
+
+        // Test equality
+        assertEquals(testMessage, testMessage);
+        assertNotEquals(testMessage, null);
+        assertNotEquals(testMessage, new Object());
+        assertNotEquals(testMessage, new TCPMessage(UUID.randomUUID(), "Hello", new User("sender"), new User("receiver"), new Timestamp(new Date().getTime())));
+        assertEquals(testMessage, new TCPMessage(uuid, content, sender, receiver, date));
     }
 }
