@@ -11,15 +11,22 @@ It enables users to communicate with each other on the same network. It is devel
 - [x] Connection to the system
 - [x] Change username
 - [x] Disconnection
-- [ ] Messaging
-- [ ] History of messages
+- [x] Messaging
+- [x] History of messages
 - [ ] Extra
 
 ## How to use the program
 
 You will need Maven and Java (version >=17).
 
-### Install Maven on Linux machines
+### Easy way with GitHub Release
+
+**Download** the latest release on [GitHub](https://github.com/insa-4ir-chatsystem/chatsystem-bonnet-cazeneuve/releases/)
+
+**Launch** the program either by double-clicking on it, or **run** `java -jar Chat-System-Release-{version}.jar`
+
+### Compile it yourself
+#### Install Maven on Linux machines
 
 ```shell
 mkdir -p ~/bin
@@ -30,49 +37,38 @@ echo 'export PATH=~/bin/apache-maven-3.9.5/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-### Clone the repository
+#### Clone the repository
 
 Clone the repository to get the source code:
 ```shell
 git clone https://github.com/insa-4ir-chatsystem/chatsystem-bonnet-cazeneuve.git
 ```
 
-You can also download, the ZIP file and unzip it.
+You can also download the ZIP file and unzip it.
 
-### Compilation
+#### Compilation
 To **compile** it, you will use Maven, run the following command:
 ```bash
 mvn clean package
 ```
-### Run the program
+#### Run the program
 
-Two versions of the program are implemented:
-* Command Line Interface (no-gui), for testing purposes
-* Graphical User Interface (default)
+The program uses Swing, any X environment variable should be set.
 
-To **run no-gui**, execute the following command:
+To **run** it, execute the following command:
 ```bash
-java -jar target/chatsystem-bonnet-cazeneuve-1.0-SNAPSHOT-jar-with-dependencies.jar no-gui
+java -jar target/chatsystem-bonnet-cazeneuve-1.1-jar-with-dependencies.jar
 ```
 
-To **run default version** of it, execute the following command:
-```bash
-java -jar target/chatsystem-bonnet-cazeneuve-1.0-SNAPSHOT-jar-with-dependencies.jar
-```
+_Change the `1.1` in the command with the current version of the project visible in `pom.xml`_.
 
-## Carbonara recipe
-For one lonely person:
-- 2 eggs
-- 50g parmesan cheese
-- freshly grounded black pepper
-- rigatoni (~110 g)
-- 2 slices of guanciale
-  
-Fry the guanciale cut into dices in a pan. Keep the fat in the pan and put the pan aside.
-Put the water to a boil. In the meantime mix the two egg yolks, the black pepper and the parmesan cheese in a bowl.
-Add the pasta into the salted water, stir. After a couple minute, take some pasta water out of the pot and mix it in the egg and cheese mixture.
-When the pasta is done (but not overcooked!), add it to the greasy pan and fry it for a minute. Cut power off, light up a candle and add the egg mix to the pasta.
-Serve immediately.
+## Documentation and reports
+
+You can find reports on the development process we have followed and UML diagrams in the [docs folder](docs):
+- [Management and CI/CD](docs/Rapport_chatsystem_management.pdf)
+- [UML diagrams](docs/Rapport_chatsystem_UML.pdf)
+
+You can know more about the tech stack, testing policy and highlights in [java-report.md](java-report.md).
 
 ## Authors
 - [Ronan Bonnet](https://github.com/BloodFutur)

@@ -48,7 +48,7 @@ public class TCPTests {
         Thread.sleep(100);
 
         LOGGER.info("[TEST] - Received messages list:\n" + receivedMessages);
-        LOGGER.severe("HEEEY");
+
         assertEquals(testMessages.size(), receivedMessages.size());
         assertEquals(testMessages, receivedMessages);
 
