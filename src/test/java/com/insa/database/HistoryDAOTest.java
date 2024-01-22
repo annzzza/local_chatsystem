@@ -1,10 +1,9 @@
 package com.insa.database;
 
-import com.insa.users.ConnectedUser;
 import com.insa.network.tcp.TCPMessage;
+import com.insa.users.ConnectedUser;
 import com.insa.users.User;
 import com.insa.utils.MyLogger;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,7 @@ class HistoryDAOTest {
 
     @BeforeAll
     static void setUpPrimary() throws SQLException {
-        con = Database.getDBConnection();
+        con = Database.getInstance().getConnection();
         jdao = new HistoryDAO();
         if (!(jdao.doesTableExist(con, "message_history"))) {
             Database.createTables(con);
@@ -43,7 +42,7 @@ class HistoryDAOTest {
     @BeforeEach
     void setUp() throws UnknownHostException {
 
-        con = Database.getDBConnection();
+        con = Database.getInstance().getConnection();
         if (con != null) {
             user1 = new ConnectedUser("annatest", (InetAddress.getByName("192.168.69.69")));
             user2 = new ConnectedUser("ronantest", InetAddress.getByName("192.168.42.42"));
@@ -230,10 +229,5 @@ class HistoryDAOTest {
         }
     }
 
-    @AfterEach
-    void tearDown() throws SQLException {
-        if (con != null) {
-            con.close();
-        }
-    }
+
 }

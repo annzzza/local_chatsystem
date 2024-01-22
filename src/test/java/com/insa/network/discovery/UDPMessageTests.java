@@ -35,5 +35,9 @@ public class UDPMessageTests {
 
         // Test equals
         assertEquals(msg, msg3);
+        assertNotEquals(msg, msg2);
+        assertNotEquals(msg, null);
+        assertNotEquals(msg, new Object());
+        assertEquals(msg, msg);
     }
 }

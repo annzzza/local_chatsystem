@@ -8,6 +8,6 @@ class DatabaseTest {
 
     @Test
     void getDBConnection() {
-        assertNotNull(Database.getDBConnection());
+        assertNotNull(Database.getInstance().getConnection());
     }
 }
