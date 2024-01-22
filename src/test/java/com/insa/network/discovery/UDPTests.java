@@ -61,7 +61,7 @@ public class UDPTests {
         assertEquals(testMessages, receivedMessages);
 
         client.close();
-        server.close();
+//        server.close(); // When the server is closed it can lead to some problems in other tests
     }
 
 }
