@@ -163,6 +163,9 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
         sendButton.addActionListener(sendMessageController);
         bottomMenu.add(sendButton);
 
+        //Send by pressing enter
+        messageTextField.addActionListener(sendMessageController);
+
         add(bottomMenu, BorderLayout.SOUTH);
     }
 
