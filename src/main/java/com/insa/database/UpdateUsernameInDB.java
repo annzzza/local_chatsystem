@@ -5,8 +5,6 @@ import com.insa.users.ConnectedUserList;
 import com.insa.users.User;
 import com.insa.utils.MyLogger;
 
-import java.sql.SQLException;
-
 public class UpdateUsernameInDB implements ConnectedUserList.Observer {
     private static final MyLogger LOGGER = new MyLogger(UpdateUsernameInDB.class.getName());
     HistoryDAO historyDAO = new HistoryDAO();
@@ -25,8 +23,8 @@ public class UpdateUsernameInDB implements ConnectedUserList.Observer {
     public void usernameChanged(ConnectedUser newConnectedUser, String previousUsername) {
         try {
             historyDAO.updateHistoryDB(new User(previousUsername), newConnectedUser.getUsername());
-        } catch (SQLException e) {
-            LOGGER.severe("Could not update history on Received changeUsernameMessage for: " + newConnectedUser.getUsername());
+        } catch (DAOException e) {
+            LOGGER.severe(e.getMessage());
         }
     }
 }

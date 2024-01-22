@@ -19,7 +19,7 @@ public class UDPTests {
     private static final int TEST_PORT = 12345;
 
     @Test
-    void sendReceiveTest() throws IOException, InterruptedException {
+    void sendReceiveTest() throws IOException, InterruptedException, NoBroadcastAddressFound {
         // Create test messages
         // Address given so that we can test equality of arrays
         List<UDPMessage> testMessages = Arrays.asList(

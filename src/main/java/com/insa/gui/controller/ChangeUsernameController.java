@@ -1,5 +1,6 @@
 package com.insa.gui.controller;
 
+import com.insa.database.DAOException;
 import com.insa.database.HistoryDAO;
 import com.insa.gui.view.PlaceholderTextField;
 import com.insa.network.discovery.DiscoveryManager;
@@ -10,8 +11,6 @@ import com.insa.utils.MyLogger;
 import javax.swing.JOptionPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
-
 /*
  * Controller for changing username
  */
@@ -48,8 +47,8 @@ public class ChangeUsernameController implements ActionListener {
             } catch (UsernameAlreadyTakenException e) {
                 LOGGER.severe("Username already taken. Not changed.");
                 JOptionPane.showMessageDialog(null, "Username already taken:" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            } catch (SQLException e) {
-                LOGGER.severe("SQL Error, history not updated after username change:\n" + e.getMessage());
+            } catch (DAOException e) {
+                LOGGER.severe( e.getMessage());
                 JOptionPane.showMessageDialog(null, "History not updated. You will loose your history.\n" + e.getMessage(), "Error :(", JOptionPane.ERROR_MESSAGE);
             }
         } else {

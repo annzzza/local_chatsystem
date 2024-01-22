@@ -1,5 +1,6 @@
 package com.insa.gui.view;
 
+import com.insa.database.DAOException;
 import com.insa.database.HistoryDAO;
 import com.insa.gui.controller.AddMessageToHistory;
 import com.insa.gui.controller.SendMessageController;
@@ -19,7 +20,6 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -130,15 +130,13 @@ public class ChattingPanel extends JPanel implements TCPServer.TCPServerObserver
 
         // Load history
         try {
-
             ArrayList<TCPMessage> historyList = historyDAO.getHistoryWith(connectedUserSelected, DiscoveryManager.getInstance().getCurrentUser());
             for (TCPMessage message : historyList){
                 //Add message to history panel
                 addMessage(message);
             }
-        } catch (SQLException e) {
-            LOGGER.severe("Could not retrieve History with " + usernameSelectedChat);
-            //throw new RuntimeException(e);
+        } catch (DAOException e) {
+            LOGGER.severe(e.getMessage());
         }
 
 

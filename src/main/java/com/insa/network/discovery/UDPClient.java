@@ -84,14 +84,13 @@ public class UDPClient {
      * @param sendingPort int
      * @throws IOException if the socket is not valid
      */
-    public void sendBroadcast(UDPMessage msg, int sendingPort) throws IOException {
+    public void sendBroadcast(UDPMessage msg, int sendingPort) throws IOException, NoBroadcastAddressFound {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         List<InetAddress> groupBroadcast = listAllBroadcastAddresses();
 
-        if (groupBroadcast.isEmpty()) {
-            throw new IllegalStateException("No broadcast address available");
-        } else {
+        if (groupBroadcast.isEmpty()) throw new NoBroadcastAddressFound();
+        else {
             byte[] buffer = gson.toJson(msg).getBytes();
             for (InetAddress address : groupBroadcast) {
                 clientSocket.setBroadcast(true);
